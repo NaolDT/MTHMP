@@ -3,6 +3,9 @@ const { Router } = require('express');
 const authRoutes = require('../modules/auth/auth.routes');
 const tenantRoutes = require('../modules/tenant/tenant.routes');
 const departmentRoutes = require('../modules/department/department.routes');
+const doctorRoutes = require('../modules/doctor/doctor.routes');
+const patientRoutes = require('../modules/patient/patient.routes');
+const appointmentRoutes = require('../modules/appointment/appointment.routes');
 const router = Router();
 
 router.get('/health', (req, res) => res.status(200).json({ success: true, status: 'ok', time: new Date().toISOString() }));
@@ -10,5 +13,8 @@ router.get('/health', (req, res) => res.status(200).json({ success: true, status
 router.use('/auth', authRoutes);
 router.use('/tenants', tenantRoutes);
 router.use('/departments', departmentRoutes);
+router.use('/doctors', doctorRoutes);
+router.use('/patients', patientRoutes);
+router.use('/appointments', appointmentRoutes);
 
 module.exports = router;

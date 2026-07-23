@@ -33,7 +33,6 @@ const TenantSchema = new Schema(
   { timestamps: true }
 );
 
-TenantSchema.index({ slug: 1 }, { unique: true });
 TenantSchema.index({ name: 1 });
 
 module.exports = model('Tenant', TenantSchema);
