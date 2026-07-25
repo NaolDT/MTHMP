@@ -6,6 +6,8 @@ const departmentRoutes = require('../modules/department/department.routes');
 const doctorRoutes = require('../modules/doctor/doctor.routes');
 const patientRoutes = require('../modules/patient/patient.routes');
 const appointmentRoutes = require('../modules/appointment/appointment.routes');
+const analyticsRoutes = require('../modules/analytics/analytics.routes');
+const staffRoutes = require('../modules/user/user.routes');
 const router = Router();
 
 router.get('/health', (req, res) => res.status(200).json({ success: true, status: 'ok', time: new Date().toISOString() }));
@@ -16,5 +18,7 @@ router.use('/departments', departmentRoutes);
 router.use('/doctors', doctorRoutes);
 router.use('/patients', patientRoutes);
 router.use('/appointments', appointmentRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/staff', staffRoutes);
 
 module.exports = router;
