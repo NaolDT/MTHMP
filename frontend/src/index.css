@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  /* Matches Tenant.settings.branding defaults from the backend, so a
+     hospital's primary/secondary color can drive the theme later. */
+  --color-brand: #2563eb;
+  --color-brand-dark: #1e293b;
+}
+
+html, body, #root {
+  height: 100%;
+}
