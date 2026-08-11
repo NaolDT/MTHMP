@@ -13,7 +13,7 @@ const emptyForm = {
   dateOfBirth: '', gender: 'prefer-not-to-say',
 };
 
-export default function PatientsPage({ navItems, basePath = '/admin' }) {
+export default function PatientsPage({ navItems, title = 'Hospital Admin' })  {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);

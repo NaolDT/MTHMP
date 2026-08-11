@@ -20,7 +20,7 @@ function StatusPill({ status }) {
   return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[status]}`}>{status}</span>;
 }
 
-export default function AppointmentsPage({ navItems, basePath = '/admin' }) {
+export default function AppointmentsPage({ navItems, title = 'Hospital Admin' })  {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('');
   const [cancelTarget, setCancelTarget] = useState(null);
