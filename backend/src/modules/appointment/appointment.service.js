@@ -179,18 +179,38 @@ async function listAppointments(tenantId, requestingUser, filters = {}) {
   if (filters.date) query.date = combineDateAndTime(filters.date, '00:00');
 
   return Appointment.find(query)
-    .setOptions({ tenantId })
-    .populate({ path: 'patientId', select: 'userId phone', options: { tenantId } })
-    .populate({ path: 'doctorId', select: 'userId specialization', options: { tenantId } })
-    .populate({ path: 'departmentId', select: 'name', options: { tenantId } })
-    .sort({ date: -1, startTime: 1 });
+  .setOptions({ tenantId })
+  .populate({
+    path: 'patientId',
+    select: 'userId phone',
+    options: { tenantId },
+    populate: { path: 'userId', select: 'firstName lastName email' },
+  })
+  .populate({
+    path: 'doctorId',
+    select: 'userId specialization',
+    options: { tenantId },
+    populate: { path: 'userId', select: 'firstName lastName' },
+  })
+  .populate({ path: 'departmentId', select: 'name', options: { tenantId } })
+  .sort({ date: -1, startTime: 1 });
 }
 
 async function getAppointment(tenantId, id, requestingUser) {
-  const appointment = await Appointment.findOne({ _id: id })
+   const appointment = await Appointment.findOne({ _id: id })
     .setOptions({ tenantId })
-    .populate({ path: 'patientId', select: 'userId phone', options: { tenantId } })
-    .populate({ path: 'doctorId', select: 'userId specialization', options: { tenantId } });
+    .populate({
+      path: 'patientId',
+      select: 'userId phone',
+      options: { tenantId },
+      populate: { path: 'userId', select: 'firstName lastName email' },
+    })
+    .populate({
+      path: 'doctorId',
+      select: 'userId specialization',
+      options: { tenantId },
+      populate: { path: 'userId', select: 'firstName lastName' },
+    });
 
   if (!appointment) throw ApiError.notFound('Appointment not found');
 
