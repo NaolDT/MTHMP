@@ -89,7 +89,9 @@ export default function LoginPage() {
             Log In
           </Button>
         </form>
-
+<p className="mt-4 text-center text-sm text-slate-500">
+  New patient? <a href="/register" className="text-brand hover:underline">Register here</a>
+</p>
         <div className="mt-4 flex items-center justify-between text-xs sm:text-sm text-slate-500">
           <label className="flex items-center gap-2 cursor-pointer">
             <input

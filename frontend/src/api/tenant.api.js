@@ -14,3 +14,8 @@ export async function setTenantActive(id, isActive) {
   const { data } = await apiClient.patch(`/tenants/${id}/status`, { isActive });
   return data.data;
 }
+
+export async function fetchPublicTenants() {
+  const { data } = await apiClient.get('/tenants/public');
+  return data.data;
+}

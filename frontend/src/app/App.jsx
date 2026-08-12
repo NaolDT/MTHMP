@@ -12,6 +12,10 @@ import BookAppointmentPage from '../features/appointment/BookAppointmentPage';
 import ReceptionistDashboard from '../features/receptionist/ReceptionistDashboard';
 import DoctorDashboard from '../features/doctor/DoctorDashboard';
 import SuperAdminDashboard from '../features/tenant/SuperAdminDashboard';
+import HomePage from '../features/marketing/HomePage';
+import RegisterPage from '../features/auth/RegisterPage';
+import TermsPage from '../features/marketing/TermsPage';
+import PrivacyPage from '../features/marketing/PrivacyPage';
 const receptionistNavItems = [
   { to: '/receptionist', label: 'Dashboard' },
   { to: '/receptionist/patients', label: 'Patients' },
@@ -40,8 +44,12 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/login" element={<LoginPage />} />
+
+<Route path="/" element={<HomePage />} />
+<Route path="/register" element={<RegisterPage />} />
+<Route path="/terms" element={<TermsPage />} />
+<Route path="/privacy" element={<PrivacyPage />} />          
+<Route path="/login" element={<LoginPage />} />
 
           <Route
             path="/admin"
