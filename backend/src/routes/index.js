@@ -10,6 +10,8 @@ const analyticsRoutes = require('../modules/analytics/analytics.routes');
 const staffRoutes = require('../modules/user/user.routes');
 const router = Router();
 const contentRoutes = require('../modules/content/content.routes');
+const contactRoutes = require('../modules/contact/contact.routes');
+
 
 router.get('/health', (req, res) => res.status(200).json({ success: true, status: 'ok', time: new Date().toISOString() }));
 
@@ -22,5 +24,6 @@ router.use('/appointments', appointmentRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/staff', staffRoutes);
 router.use('/content', contentRoutes);
+router.use('/contact', contactRoutes);
 
 module.exports = router;
