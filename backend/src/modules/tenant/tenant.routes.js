@@ -8,6 +8,8 @@ const authorize = require('../../shared/middlewares/authorize');
 
 const router = Router();
 
+router.get('/public', controller.listPublic);
+
 router.use(authenticate, authorize('super-admin'));
 
 router.post('/', validate(validation.createTenant), controller.create);

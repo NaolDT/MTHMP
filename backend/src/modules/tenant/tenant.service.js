@@ -84,4 +84,8 @@ async function listTenants({ page = 1, limit = 20 }) {
   return { data, pagination: { page: Number(page), limit: Number(limit), total } };
 }
 
-module.exports = { createTenant, setTenantActive, listTenants };
+async function listPublicTenants() {
+  return Tenant.find({ isActive: true }).select('name slug').sort({ name: 1 });
+}
+
+module.exports = { createTenant, setTenantActive, listTenants, listPublicTenants };

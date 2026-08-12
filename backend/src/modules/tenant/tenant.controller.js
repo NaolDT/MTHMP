@@ -17,4 +17,9 @@ const list = asyncHandler(async (req, res) => {
   success(res, 200, result.data, result.pagination);
 });
 
-module.exports = { create, setActive, list };
+const listPublic = asyncHandler(async (req, res) => {
+  const tenants = await tenantService.listPublicTenants();
+  success(res, 200, tenants);
+});
+
+module.exports = { create, setActive, list, listPublic };
