@@ -27,10 +27,11 @@ function errorHandler(err, req, res, next) {
   }
 
   res.status(statusCode).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV !== 'production' && statusCode >= 500 ? { stack: err.stack } : {}),
-  });
+  success: false,
+  message,
+  ...(err.details ? { details: err.details } : {}),
+  ...(process.env.NODE_ENV !== 'production' && statusCode >= 500 ? { stack: err.stack } : {}),
+});
 }
 
 function notFound(req, res) {
