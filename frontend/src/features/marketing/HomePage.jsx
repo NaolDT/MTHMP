@@ -6,6 +6,8 @@ import HowItWorks from './HowItWorks';
 import PlatformFeatures from './PlatformFeatures';
 import PatientExperience from './PatientExperience';
 import HospitalSection from './HospitalSection';
+import SecuritySection from './SecuritySection';
+import HealthResources from './HealthResources';
 import { useScrollToHash } from '../../shared/hooks/useScrollToHash';
 
 export default function HomePage() {
@@ -20,6 +22,8 @@ export default function HomePage() {
       <HowItWorks />
       <PlatformFeatures />
       <PatientExperience />
+      <SecuritySection />
+      <HealthResources />
       <HospitalSection />
 
       <PublicFooter />
