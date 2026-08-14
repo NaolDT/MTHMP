@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
@@ -11,16 +11,37 @@ const navLinks = [
 
 export default function PublicHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      setIsScrolled(window.scrollY > 24);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
+    <header
+      className={`sticky top-0 z-30 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm'
+          : 'bg-white border-b border-transparent'
+      }`}
+    >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="text-lg font-semibold text-brand-dark">MTHMP</Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm">
           {navLinks.map((link) => (
-            <Link key={link.href} to={link.href} className="text-slate-600 hover:text-brand-dark transition-colors">
+            <Link
+              key={link.href}
+              to={link.href}
+              className="relative text-slate-600 hover:text-brand-dark transition-colors group py-1"
+            >
               {link.label}
+              <span className="absolute left-0 -bottom-0.5 w-0 h-0.5 bg-brand transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
         </nav>
@@ -45,8 +66,12 @@ export default function PublicHeader() {
         </button>
       </div>
 
-      {isMenuOpen && (
-        <nav className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-1">
+      <nav
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-out bg-white border-t border-slate-200 ${
+          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 border-t-0'
+        }`}
+      >
+        <div className="px-4 py-4 space-y-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -73,8 +98,8 @@ export default function PublicHeader() {
               Register
             </Link>
           </div>
-        </nav>
-      )}
+        </div>
+      </nav>
     </header>
   );
 }

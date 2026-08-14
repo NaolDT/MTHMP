@@ -1,9 +1,12 @@
 import { UserRound, Building2 } from 'lucide-react';
+import { useRevealOnScroll } from '../../shared/hooks/useRevealOnScroll';
 
 export default function PlatformOverview() {
+  const reveal = useRevealOnScroll();
+
   return (
     <section className="bg-slate-50 border-y border-slate-200">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <div ref={reveal.ref} className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16`}>
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-xl sm:text-2xl font-semibold text-brand-dark">One platform. Two experiences.</h2>
         </div>

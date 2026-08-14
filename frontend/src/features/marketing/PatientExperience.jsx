@@ -1,3 +1,5 @@
+import { useRevealOnScroll } from '../../shared/hooks/useRevealOnScroll';
+
 const journey = [
   'Access your hospital',
   'Explore departments',
@@ -7,9 +9,12 @@ const journey = [
   'Receive updates',
 ];
 
+
 export default function PatientExperience() {
+    const reveal = useRevealOnScroll();
+
   return (
-    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <section ref={reveal.ref} className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16`}>
       <h2 className="text-xl sm:text-2xl font-semibold text-brand-dark text-center">Designed around the patient</h2>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
