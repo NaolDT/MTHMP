@@ -8,8 +8,11 @@ const ContentItemSchema = new Schema(
     sourceUrl: { type: String, required: true },
     externalId: { type: String, default: '' },
     publishedAt: { type: Date, default: null },
+        imageUrl: { type: String, default: null },
+
   },
   { _id: false }
+  
 );
 
 const ContentCacheSchema = new Schema({
@@ -17,5 +20,6 @@ const ContentCacheSchema = new Schema({
   items: { type: [ContentItemSchema], default: [] },
   fetchedAt: { type: Date, required: true },
 });
+
 
 module.exports = model('ContentCache', ContentCacheSchema);

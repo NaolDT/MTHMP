@@ -12,6 +12,7 @@ async function fetchWithTimeout(url) {
   }
 }
 
+
 async function fetchNews(appname) {
   if (!appname) {
     return [];
@@ -23,7 +24,8 @@ async function fetchNews(appname) {
     `&filter[operator]=AND` +
     `&filter[conditions][0][field]=country&filter[conditions][0][value]=Ethiopia` +
     `&filter[conditions][1][field]=theme&filter[conditions][1][value]=Health` +
-    `&fields[include][]=title&fields[include][]=date&fields[include][]=url&fields[include][]=source`;
+    `&fields[include][]=title&fields[include][]=date&fields[include][]=url` +
+    `&fields[include][]=source&fields[include][]=file`;
 
   const data = await fetchWithTimeout(url);
   const results = data?.data || [];
@@ -35,6 +37,7 @@ async function fetchNews(appname) {
     sourceUrl: r.fields?.url || `https://reliefweb.int/node/${r.id}`,
     externalId: String(r.id),
     publishedAt: r.fields?.date?.created ? new Date(r.fields.date.created) : null,
+    imageUrl: r.fields?.file?.[0]?.preview?.['url-large'] || null,
   }));
 }
 

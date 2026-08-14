@@ -34,13 +34,14 @@ async function fetchInsights() {
       if (!latest || latest.NumericValue == null) return null;
 
       return {
-        title: indicator.label,
-        summary: `${Number(latest.NumericValue).toLocaleString(undefined, { maximumFractionDigits: 1 })} (${latest.TimeDim}, Ethiopia)`,
-        source: 'World Health Organization',
-        sourceUrl: `https://www.who.int/data/gho/data/indicators/indicator-details/GHO/${indicator.code}`,
-        externalId: indicator.code,
-        publishedAt: latest.TimeDim ? new Date(`${latest.TimeDim}-01-01`) : null,
-      };
+  title: indicator.label,
+  summary: `${Number(latest.NumericValue).toLocaleString(undefined, { maximumFractionDigits: 1 })} (${latest.TimeDim}, Ethiopia)`,
+  source: 'World Health Organization',
+  sourceUrl: `https://www.who.int/data/gho/data/indicators/indicator-details/GHO/${indicator.code}`,
+  externalId: indicator.code,
+  publishedAt: latest.TimeDim ? new Date(`${latest.TimeDim}-01-01`) : null,
+  imageUrl: null, 
+};
     })
   );
 

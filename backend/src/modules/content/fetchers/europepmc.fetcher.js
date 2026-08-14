@@ -20,13 +20,14 @@ async function fetchResearch() {
   const results = data?.resultList?.result || [];
 
   return results.map((r) => ({
-    title: r.title || 'Untitled',
-    summary: (r.abstractText || '').slice(0, 280),
-    source: 'Europe PMC',
-    sourceUrl: `https://europepmc.org/article/${r.source}/${r.id}`,
-    externalId: r.id,
-    publishedAt: r.firstPublicationDate ? new Date(r.firstPublicationDate) : null,
-  }));
+  title: r.title || 'Untitled',
+  summary: (r.abstractText || '').slice(0, 280),
+  source: 'Europe PMC',
+  sourceUrl: `https://europepmc.org/article/${r.source}/${r.id}`,
+  externalId: r.id,
+  publishedAt: r.firstPublicationDate ? new Date(r.firstPublicationDate) : null,
+  imageUrl: null, 
+}));
 }
 
 module.exports = { fetchResearch };

@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { FlaskConical, Activity, Newspaper, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FlaskConical, Activity, Newspaper, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchHealthContent } from '../../api/content.api';
 import { useItemsPerView } from '../../shared/hooks/useItemsPerView';
 import { usePrefersReducedMotion } from '../../shared/hooks/usePrefersReducedMotion';
 import { useRevealOnScroll } from '../../shared/hooks/useRevealOnScroll';
+import SectionBadge from '../../shared/components/SectionBadge';
 
 const categoryMeta = {
-  research: { icon: FlaskConical, label: 'Research', badge: 'bg-blue-50 text-blue-700', cta: 'Read study' },
-  insight: { icon: Activity, label: 'Health Insight', badge: 'bg-teal-50 text-teal-700', cta: 'Explore insight' },
-  news: { icon: Newspaper, label: 'Health News', badge: 'bg-amber-50 text-amber-700', cta: 'Read article' },
+  research: { icon: FlaskConical, label: 'Research & Studies', cta: 'Read Study', gradient: 'from-blue-500 to-blue-700' },
+  insight: { icon: Activity, label: 'Health Insight', cta: 'Explore Insight', gradient: 'from-teal-500 to-teal-700' },
+  news: { icon: Newspaper, label: 'Health News', cta: 'Read Article', gradient: 'from-amber-500 to-amber-700' },
 };
 
 function formatDate(dateStr) {
@@ -17,6 +18,29 @@ function formatDate(dateStr) {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return null;
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+}
+
+function CardCover({ item }) {
+  const meta = categoryMeta[item.category];
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (item.imageUrl && !imgFailed) {
+    return (
+      <img
+        src={item.imageUrl}
+        alt=""
+        loading="lazy"
+        onError={() => setImgFailed(true)}
+        className="w-full h-40 object-cover"
+      />
+    );
+  }
+
+  return (
+    <div className={`w-full h-40 bg-gradient-to-br ${meta.gradient} flex items-center justify-center`} aria-hidden="true">
+      <meta.icon className="text-white/80" size={36} />
+    </div>
+  );
 }
 
 function ContentCard({ item }) {
@@ -28,31 +52,31 @@ function ContentCard({ item }) {
       href={item.sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-col h-full bg-white rounded-xl border border-slate-200 p-5 hover:border-brand/40 hover:-translate-y-1 transition-all duration-200"
+      className="flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-lg transition-shadow duration-200"
     >
-      <span className={`inline-flex items-center gap-1.5 self-start text-xs font-medium px-2 py-1 rounded-full ${meta.badge}`}>
-        <meta.icon size={12} />
-        {meta.label}
-      </span>
-      <h4 className="mt-3 text-sm font-medium text-slate-800 leading-snug line-clamp-2">{item.title}</h4>
-      {item.summary && <p className="mt-2 text-xs text-slate-500 line-clamp-2">{item.summary}</p>}
-      <div className="mt-auto pt-3 flex items-center justify-between text-xs text-slate-400">
-        <span>{item.source}{date ? ` · ${date}` : ''}</span>
+      <CardCover item={item} />
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-brand uppercase tracking-wide">{meta.label}</span>
+          {date && <span className="text-xs text-slate-400">{date}</span>}
+        </div>
+        <h4 className="mt-2 font-bold text-slate-900 leading-snug line-clamp-2">{item.title}</h4>
+        {item.summary && <p className="mt-2 text-sm text-slate-500 line-clamp-2">{item.summary}</p>}
+        <span className="mt-auto pt-4 text-sm font-medium text-brand">{meta.cta} →</span>
       </div>
-      <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand">
-        {meta.cta} <ExternalLink size={11} />
-      </span>
     </a>
   );
 }
 
 function CardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 animate-pulse h-full">
-      <div className="h-5 w-20 bg-slate-100 rounded-full" />
-      <div className="h-4 w-full bg-slate-100 rounded mt-4" />
-      <div className="h-4 w-2/3 bg-slate-100 rounded mt-2" />
-      <div className="h-3 w-1/2 bg-slate-100 rounded mt-6" />
+    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse h-full">
+      <div className="w-full h-40 bg-slate-100" />
+      <div className="p-5">
+        <div className="h-3 w-20 bg-slate-100 rounded" />
+        <div className="h-4 w-full bg-slate-100 rounded mt-4" />
+        <div className="h-4 w-2/3 bg-slate-100 rounded mt-2" />
+      </div>
     </div>
   );
 }
@@ -132,27 +156,32 @@ export default function HealthResources() {
   const showControls = pages.length > 1;
 
   return (
-    <section id="health-resources" className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 scroll-mt-16">
+    <section id="health-resources" className="bg-white py-14 sm:py-20 scroll-mt-16">
       <div
         ref={reveal.ref}
-        className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''}`}
+        className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-5xl mx-auto px-4 sm:px-6`}
       >
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-xl sm:text-2xl font-semibold text-brand-dark">Health & Research</h2>
-          <p className="mt-2 text-sm sm:text-base text-slate-500">
+        <div className="text-center max-w-xl mx-auto">
+          <div className="flex justify-center">
+            <SectionBadge>Health Resources &amp; Research</SectionBadge>
+          </div>
+          <h2 className="mt-5 text-3xl sm:text-4xl font-extrabold text-slate-900">
+            Latest Health &amp; Research Insights
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-slate-500">
             Stay informed with health information and research from trusted sources.
           </p>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-10 sm:mt-14">
           {isLoading ? (
-            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <CardSkeleton />
               <CardSkeleton />
               <CardSkeleton />
             </div>
           ) : isError || allItems.length === 0 ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center max-w-md mx-auto">
+            <div className="bg-slate-50 rounded-2xl p-8 text-center max-w-md mx-auto">
               <p className="text-sm text-slate-500">
                 {isError
                   ? 'Health resources are temporarily unavailable. Please check back later.'
@@ -182,7 +211,7 @@ export default function HealthResources() {
                   {pages.map((page, i) => (
                     <div
                       key={i}
-                      className="w-full shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+                      className="w-full shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                       aria-hidden={i !== pageIndex}
                     >
                       {page.map((item, j) => (
