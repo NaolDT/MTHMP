@@ -1,50 +1,38 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Check, CalendarClock, Stethoscope, Building2, Users, Bell } from 'lucide-react';
+import { Check } from 'lucide-react';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import { submitContactInquiry } from '../../api/contact.api';
 import { useRevealOnScroll } from '../../shared/hooks/useRevealOnScroll';
-
-const capabilities = [
-  'Dedicated hospital workspace',
-  'Doctor management',
-  'Department management',
-  'Appointment management',
-  'Role-based access',
-  'Operational insights',
-  'Notifications',
-  'Responsive web access',
-];
-
-const workspaceStats = [
-  { icon: CalendarClock, label: "Today's Appointments", value: '12' },
-  { icon: Stethoscope, label: 'Doctors', value: '8' },
-  { icon: Building2, label: 'Departments', value: '4' },
-  { icon: Users, label: 'Patients', value: '340' },
-];
+import SectionBadge from '../../shared/components/SectionBadge';
 
 const emptyForm = { hospitalName: '', contactName: '', email: '', phone: '', message: '' };
 
-function HospitalWorkspacePreview() {
+const previewStats = [
+  { label: 'Active Roster', value: '48 Doctors Registered', pill: '92% availability' },
+  { label: 'Weekly Patient Intake', value: '1,240 Bookings Handled', pill: '+18% growth' },
+  { label: 'Clinic Wait Times', value: 'Avg 8.4 Minutes', pill: '-22% reduced' },
+];
+
+function WorkspacePreview() {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden" aria-hidden="true">
-      <div className="bg-brand-dark px-4 py-3 flex items-center justify-between">
-        <span className="text-white text-sm font-semibold">Hospital Workspace</span>
-        <Bell size={14} className="text-white/60" />
-      </div>
-      <div className="p-4">
-        <div className="grid grid-cols-2 gap-2.5">
-          {workspaceStats.map((stat) => (
-            <div key={stat.label} className="rounded-lg border border-slate-100 px-3 py-2.5">
-              <stat.icon size={14} className="text-brand" />
-              <p className="mt-1.5 text-lg font-semibold text-slate-800 leading-none">{stat.value}</p>
-              <p className="mt-1 text-[10px] text-slate-400 leading-tight">{stat.label}</p>
+    <div className="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8" aria-hidden="true">
+      <p className="font-bold text-slate-900">Workspace Operations Preview</p>
+      <div className="mt-5 space-y-3">
+        {previewStats.map((stat) => (
+          <div key={stat.label} className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{stat.label}</p>
+              <p className="mt-1 font-bold text-slate-900">{stat.value}</p>
             </div>
-          ))}
-        </div>
-        <p className="mt-3 text-[11px] text-slate-300 text-center">Illustrative preview — not real data</p>
+            <span className="text-xs font-medium text-green-700 bg-green-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+              {stat.pill}
+            </span>
+          </div>
+        ))}
       </div>
+      <p className="mt-4 text-xs text-slate-300 text-center">Illustrative preview — not real platform data</p>
     </div>
   );
 }
@@ -69,53 +57,41 @@ export default function HospitalSection() {
   }
 
   return (
-    <section id="for-hospitals" className="bg-white border-t border-slate-200 scroll-mt-16">
+    <section id="for-hospitals" className="bg-slate-50 py-14 sm:py-20 scroll-mt-16">
       <div
         ref={reveal.ref}
-        className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20`}
+        className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-5xl mx-auto px-4 sm:px-6`}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-brand-dark">
-              Give your healthcare organization a digital workspace.
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-500">
-              MTHMP gives hospitals and clinics a dedicated environment to manage
-              appointments, doctors, departments, patients, and daily healthcare workflows.
-            </p>
-
-            <div className="mt-6 max-w-sm">
-              <HospitalWorkspacePreview />
-            </div>
-
-            <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
-              {capabilities.map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm text-slate-600">
-                  <Check size={16} className="text-brand shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-6 text-xs text-slate-400">
-              Hospital accounts are currently provisioned directly by the MTHMP team —
-              reach out below and we'll be in touch.
-            </p>
+        <div className="text-center max-w-xl mx-auto">
+          <div className="flex justify-center">
+            <SectionBadge>For Enterprises</SectionBadge>
           </div>
+          <h2 className="mt-5 text-3xl sm:text-4xl font-extrabold text-slate-900">
+            Bring MTHMP to Your Hospital
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-slate-500">
+            Give your healthcare organization a dedicated digital workspace for
+            appointments, doctors, departments, and patients.
+          </p>
+        </div>
 
-          <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 h-fit">
+        <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <WorkspacePreview />
+
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8">
             {mutation.isSuccess ? (
-              <div className="text-center py-8">
+              <div className="text-center py-10">
                 <Check className="mx-auto text-green-600" size={32} />
-                <p className="mt-3 font-medium text-slate-800">Thank you!</p>
+                <p className="mt-3 font-bold text-slate-900">Thank you!</p>
                 <p className="mt-1 text-sm text-slate-500">We've received your inquiry and will be in touch soon.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <h3 className="font-semibold text-slate-800">Contact MTHMP</h3>
+                <p className="font-bold text-slate-900">Request Workspace Integration</p>
                 <Input
                   id="hospitalName"
-                  label="Hospital / Clinic Name"
+                  label="Healthcare Organization Name"
+                  placeholder="e.g., General City Hospital"
                   value={form.hospitalName}
                   onChange={(e) => setForm((p) => ({ ...p, hospitalName: e.target.value }))}
                   required
@@ -130,7 +106,8 @@ export default function HospitalSection() {
                 <Input
                   id="email"
                   type="email"
-                  label="Email"
+                  label="Administrative Email Address"
+                  placeholder="admin@hospital.org"
                   value={form.email}
                   onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                   required
@@ -155,7 +132,7 @@ export default function HospitalSection() {
                 {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
                 <Button type="submit" isLoading={mutation.isPending} className="w-full">
-                  Send Inquiry
+                  Request Integration Pitch
                 </Button>
               </form>
             )}

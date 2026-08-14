@@ -1,5 +1,6 @@
-import { Plus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useRevealOnScroll } from '../../shared/hooks/useRevealOnScroll';
+import SectionBadge from '../../shared/components/SectionBadge';
 
 const faqs = [
   { q: 'What is MTHMP?', a: 'MTHMP is a platform that connects patients with participating hospitals and clinics, allowing you to manage healthcare appointments online instead of by phone.' },
@@ -18,30 +19,30 @@ export default function FAQSection() {
   return (
     <section
       ref={reveal.ref}
-      className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-3xl mx-auto px-4 sm:px-6 py-14 sm:py-20`}
+      className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} bg-white py-14 sm:py-20`}
     >
-      <h2 className="text-xl sm:text-2xl font-semibold text-brand-dark text-center">Frequently Asked Questions</h2>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="text-center">
+          <div className="flex justify-center">
+            <SectionBadge>FAQ</SectionBadge>
+          </div>
+          <h2 className="mt-5 text-3xl sm:text-4xl font-extrabold text-slate-900">Frequently Asked Questions</h2>
+        </div>
 
-      <div className="mt-8 space-y-2.5">
-        {faqs.map((faq) => (
-          <details
-            key={faq.q}
-            className="group bg-white border border-slate-200 rounded-xl px-4 sm:px-5 hover:border-brand/30 transition-colors"
-          >
-            <summary className="flex items-center justify-between gap-3 py-3.5 sm:py-4 cursor-pointer list-none font-medium text-sm sm:text-base text-slate-800 select-none focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 rounded">
-              {faq.q}
-              <Plus
-                size={18}
-                className="text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-45 group-open:text-brand"
-              />
-            </summary>
-            <div className="accordion-content">
-              <div>
-                <p className="text-sm text-slate-500 leading-relaxed pb-4">{faq.a}</p>
-              </div>
-            </div>
-          </details>
-        ))}
+        <div className="mt-10 space-y-3">
+          {faqs.map((faq) => (
+            <details key={faq.q} className="group bg-slate-50 rounded-2xl px-5 sm:px-6">
+              <summary className="flex items-center justify-between gap-3 py-4 sm:py-5 cursor-pointer list-none font-bold text-slate-900 select-none focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 rounded">
+                {faq.q}
+                <ChevronDown
+                  size={20}
+                  className="text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180"
+                />
+              </summary>
+              <p className="text-sm text-slate-500 leading-relaxed pb-5">{faq.a}</p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   );

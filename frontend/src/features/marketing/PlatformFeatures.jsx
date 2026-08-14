@@ -1,34 +1,32 @@
-import { Stethoscope, Building2, Users, Bell, BarChart3, Clock, CheckCircle2 } from 'lucide-react';
+import { CalendarClock, Stethoscope, FolderOpen, Users, Bell } from 'lucide-react';
 import { useRevealOnScroll } from '../../shared/hooks/useRevealOnScroll';
+import SectionBadge from '../../shared/components/SectionBadge';
 
 const supportingFeatures = [
-  { icon: Stethoscope, title: 'Doctor Management', text: 'Manage healthcare professionals and their availability.' },
-  { icon: Building2, title: 'Department Management', text: 'Organize healthcare services and specialties.' },
+  { icon: Stethoscope, title: 'Doctor Management', text: 'Manage healthcare professionals, their profiles, and their availability.' },
+  { icon: FolderOpen, title: 'Department Management', text: 'Organize healthcare services and specialties by department.' },
   { icon: Users, title: 'Patient Management', text: 'Maintain organized patient information within the hospital workspace.' },
-  { icon: Bell, title: 'Notifications', text: 'Keep patients and staff informed about appointment updates.' },
-  { icon: BarChart3, title: 'Analytics', text: 'Understand appointment activity and operational trends.' },
+  { icon: Bell, title: 'Smart Notifications', text: 'Keep patients and staff informed about appointment updates by email.' },
 ];
 
-function AppointmentPreview() {
+function ActiveQueuePanel() {
+  const rows = [
+    { day: 'Mon', time: '09:00 AM', doctor: 'Dr. Evans' },
+    { day: 'Wed', time: '02:30 PM', doctor: 'Dr. Brooks' },
+  ];
+
   return (
-    <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4" aria-hidden="true">
-      <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
-        <span className="font-medium text-slate-500">This week</span>
-        <Clock size={14} />
+    <div className="mt-6 rounded-xl border border-slate-100 bg-white p-5" aria-hidden="true">
+      <div className="flex items-center justify-between">
+        <p className="font-bold text-slate-900 text-sm">Active Queue</p>
+        <span className="text-xs text-slate-400">This week</span>
       </div>
-      <div className="space-y-2">
-        {[
-          { day: 'Mon', time: '09:00', ok: true },
-          { day: 'Wed', time: '14:30', ok: true },
-          { day: 'Fri', time: '11:00', ok: false },
-        ].map((row) => (
-          <div key={row.day + row.time} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-slate-100">
-            <span className="text-xs font-medium text-slate-600">{row.day} · {row.time}</span>
-            {row.ok ? (
-              <CheckCircle2 size={14} className="text-green-600" />
-            ) : (
-              <span className="text-[10px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">Pending</span>
-            )}
+      <div className="mt-3 divide-y divide-slate-100">
+        {rows.map((row) => (
+          <div key={row.day + row.time} className="flex items-center justify-between py-3">
+            <span className="text-sm font-medium text-slate-700">{row.day} · {row.time}</span>
+            <span className="text-sm text-slate-500">{row.doctor}</span>
+            <span className="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-full">Confirmed</span>
           </div>
         ))}
       </div>
@@ -37,40 +35,46 @@ function AppointmentPreview() {
 }
 
 export default function PlatformFeatures() {
-  const hero = useRevealOnScroll();
-  const grid = useRevealOnScroll();
+  const reveal = useRevealOnScroll();
 
   return (
-    <section id="features" className="bg-slate-50 border-y border-slate-200 scroll-mt-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
-        <h2 className="text-xl sm:text-2xl font-semibold text-brand-dark text-center">One platform for healthcare</h2>
+    <section id="features" className="bg-white py-14 sm:py-20 scroll-mt-16">
+      <div
+        ref={reveal.ref}
+        className={`reveal-on-scroll ${reveal.isVisible ? 'is-visible' : ''} max-w-5xl mx-auto px-4 sm:px-6`}
+      >
+        <div className="text-center max-w-xl mx-auto">
+          <div className="flex justify-center">
+            <SectionBadge>Feature Bento Grid</SectionBadge>
+          </div>
+          <h2 className="mt-5 text-3xl sm:text-4xl font-extrabold text-slate-900">One platform for healthcare</h2>
+        </div>
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* Large hero tile */}
-          <div
-            ref={hero.ref}
-            className={`reveal-on-scroll ${hero.isVisible ? 'is-visible' : ''} lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 hover:border-brand/40 transition-colors`}
-          >
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-              <Clock className="text-brand" size={20} />
+        <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Large tile */}
+          <div className="lg:col-span-2 bg-slate-50 rounded-2xl p-6 sm:p-8">
+            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+              <CalendarClock className="text-brand" size={24} />
             </div>
-            <h3 className="mt-4 font-semibold text-lg text-slate-800">Appointment Management</h3>
-            <p className="mt-2 text-sm text-slate-500 max-w-md">
+            <h3 className="mt-5 font-extrabold text-2xl text-slate-900">Appointment Management</h3>
+            <p className="mt-3 text-slate-500 max-w-md">
               Schedule, reschedule, cancel, and track appointments — with automatic
-              conflict prevention built in.
+              conflict prevention built directly into the interface.
             </p>
-            <AppointmentPreview />
+            <ActiveQueuePanel />
           </div>
 
-          <div ref={grid.ref} className={`reveal-on-scroll ${grid.isVisible ? 'is-visible' : ''} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5`}>
+          {/* Supporting stack */}
+          <div className="flex flex-col gap-4">
             {supportingFeatures.map((feature) => (
-              <div
-                key={feature.title}
-                className="group bg-white rounded-xl border border-slate-200 p-4 hover:border-brand/40 hover:-translate-y-1 transition-all duration-200"
-              >
-                <feature.icon className="text-brand transition-transform duration-200 group-hover:scale-110" size={20} />
-                <h3 className="mt-2.5 font-medium text-slate-800 text-sm">{feature.title}</h3>
-                <p className="mt-1.5 text-xs text-slate-500">{feature.text}</p>
+              <div key={feature.title} className="bg-slate-50 rounded-2xl p-5 flex gap-4">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                  <feature.icon className="text-brand" size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">{feature.title}</h3>
+                  <p className="mt-1 text-xs text-slate-500 leading-relaxed">{feature.text}</p>
+                </div>
               </div>
             ))}
           </div>
