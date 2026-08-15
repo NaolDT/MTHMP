@@ -7,6 +7,8 @@ import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import Badge from '../../shared/components/Badge';
 import { fetchDepartments, createDepartment, updateDepartment, setDepartmentActive } from '../../api/department.api';
+import { useFormValidation } from '../../shared/hooks/useFormValidation';
+import { required, minLength, compose } from '../../shared/utils/validators';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
@@ -16,17 +18,24 @@ const navItems = [
   { to: '/admin/appointments', label: 'Appointments' },
 ];
 
+const validators = {
+  name: compose(required('Name'), minLength(2, 'Name')),
+};
+
+const emptyForm = { name: '', description: '' };
+
 export default function DepartmentsPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '' });
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
-  const { data: departments, isLoading } = useQuery({
-    queryKey: ['departments'],
-    queryFn: () => fetchDepartments(),
-  });
+  const { values, errors, touched, handleChange, handleBlur, validateAll, reset } = useFormValidation(
+    emptyForm,
+    validators
+  );
+
+  const { data: departments, isLoading } = useQuery({ queryKey: ['departments'], queryFn: () => fetchDepartments() });
 
   const createMutation = useMutation({
     mutationFn: createDepartment,
@@ -34,7 +43,7 @@ export default function DepartmentsPage() {
       queryClient.invalidateQueries({ queryKey: ['departments'] });
       closeModal();
     },
-    onError: (err) => setError(err.response?.data?.message || 'Failed to create department'),
+    onError: (err) => setSubmitError(err.response?.data?.message || 'Failed to create department'),
   });
 
   const updateMutation = useMutation({
@@ -43,7 +52,7 @@ export default function DepartmentsPage() {
       queryClient.invalidateQueries({ queryKey: ['departments'] });
       closeModal();
     },
-    onError: (err) => setError(err.response?.data?.message || 'Failed to update department'),
+    onError: (err) => setSubmitError(err.response?.data?.message || 'Failed to update department'),
   });
 
   const toggleActiveMutation = useMutation({
@@ -53,15 +62,15 @@ export default function DepartmentsPage() {
 
   function openCreateModal() {
     setEditingDept(null);
-    setForm({ name: '', description: '' });
-    setError('');
+    reset(emptyForm);
+    setSubmitError('');
     setIsModalOpen(true);
   }
 
   function openEditModal(dept) {
     setEditingDept(dept);
-    setForm({ name: dept.name, description: dept.description });
-    setError('');
+    reset({ name: dept.name, description: dept.description });
+    setSubmitError('');
     setIsModalOpen(true);
   }
 
@@ -71,10 +80,13 @@ export default function DepartmentsPage() {
 
   function handleSubmit(e) {
     e.preventDefault();
+    setSubmitError('');
+    if (!validateAll()) return;
+
     if (editingDept) {
-      updateMutation.mutate({ id: editingDept._id, payload: form });
+      updateMutation.mutate({ id: editingDept._id, payload: values });
     } else {
-      createMutation.mutate(form);
+      createMutation.mutate(values);
     }
   }
 
@@ -91,9 +103,7 @@ export default function DepartmentsPage() {
           <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Departments</h1>
           <p className="text-sm text-slate-500 mt-1">Manage your hospital's departments</p>
         </div>
-        <Button onClick={openCreateModal} className="sm:w-auto">
-          + Add Department
-        </Button>
+        <Button onClick={openCreateModal} className="sm:w-auto">+ Add Department</Button>
       </div>
 
       <div className="mt-6">
@@ -106,12 +116,7 @@ export default function DepartmentsPage() {
             emptyMessage="No departments yet — add your first one above."
             actions={(row) => (
               <div className="flex gap-2 flex-wrap">
-                <button
-                  onClick={() => openEditModal(row)}
-                  className="text-xs font-medium text-brand hover:underline"
-                >
-                  Edit
-                </button>
+                <button onClick={() => openEditModal(row)} className="text-xs font-medium text-brand hover:underline">Edit</button>
                 <button
                   onClick={() => toggleActiveMutation.mutate({ id: row._id, isActive: !row.isActive })}
                   className="text-xs font-medium text-slate-500 hover:underline"
@@ -125,21 +130,17 @@ export default function DepartmentsPage() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={editingDept ? 'Edit Department' : 'Add Department'}>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <Input
-            id="name"
-            label="Name"
-            value={form.name}
-            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-            required
+            id="name" name="name" label="Name"
+            value={values.name} onChange={handleChange} onBlur={handleBlur}
+            error={touched.name ? errors.name : null}
           />
           <Input
-            id="description"
-            label="Description"
-            value={form.description}
-            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+            id="description" name="description" label="Description"
+            value={values.description} onChange={handleChange} onBlur={handleBlur}
           />
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {submitError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{submitError}</p>}
           <Button type="submit" isLoading={createMutation.isPending || updateMutation.isPending}>
             {editingDept ? 'Save Changes' : 'Create Department'}
           </Button>

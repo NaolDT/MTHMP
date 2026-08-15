@@ -18,3 +18,12 @@ export async function registerPatientRequest(payload) {
   const { data } = await apiClient.post('/auth/register/patient', payload);
   return data.data;
 }
+export async function forgotPasswordRequest(payload) {
+  const { data } = await apiClient.post('/auth/forgot-password', payload);
+  return data.data;
+}
+
+export async function resetPasswordRequest(payload) {
+  const { data } = await apiClient.post('/auth/reset-password', payload);
+  return data.data;
+}

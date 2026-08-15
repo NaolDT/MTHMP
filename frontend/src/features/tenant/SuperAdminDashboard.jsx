@@ -9,8 +9,18 @@ import Button from '../../shared/components/Button';
 import Badge from '../../shared/components/Badge';
 import { fetchTenants, createTenant, setTenantActive } from '../../api/tenant.api';
 import { fetchPlatformOverview } from '../../api/analytics.api';
+import { useFormValidation } from '../../shared/hooks/useFormValidation';
+import { required, email as emailRule, passwordStrength, compose } from '../../shared/utils/validators';
 
 const navItems = [{ to: '/super-admin', label: 'Hospitals' }];
+
+const tenantValidators = {
+  name: required('Hospital name'),
+  adminFirstName: required('First name'),
+  adminLastName: required('Last name'),
+  adminEmail: compose(required('Admin email'), emailRule),
+  adminPassword: compose(required('Admin password'), passwordStrength),
+};
 
 const emptyForm = {
   name: '', timezone: 'UTC', adminEmail: '', adminPassword: '', adminFirstName: '', adminLastName: '',
@@ -19,8 +29,12 @@ const emptyForm = {
 export default function SuperAdminDashboard() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+
+  const { values, errors, touched, handleChange, handleBlur, validateAll, reset } = useFormValidation(
+    emptyForm,
+    tenantValidators
+  );
 
   const { data: overview } = useQuery({ queryKey: ['analytics', 'platform-overview'], queryFn: fetchPlatformOverview });
   const { data: tenants, isLoading } = useQuery({ queryKey: ['tenants'], queryFn: () => fetchTenants() });
@@ -31,9 +45,9 @@ export default function SuperAdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
       queryClient.invalidateQueries({ queryKey: ['analytics', 'platform-overview'] });
       setIsModalOpen(false);
-      setForm(emptyForm);
+      reset(emptyForm);
     },
-    onError: (err) => setError(err.response?.data?.message || 'Failed to create hospital'),
+    onError: (err) => setSubmitError(err.response?.data?.message || 'Failed to create hospital'),
   });
 
   const toggleActiveMutation = useMutation({
@@ -44,10 +58,17 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  function openModal() {
+    reset(emptyForm);
+    setSubmitError('');
+    setIsModalOpen(true);
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
-    setError('');
-    createMutation.mutate(form);
+    setSubmitError('');
+    if (!validateAll()) return;
+    createMutation.mutate(values);
   }
 
   const columns = [
@@ -65,9 +86,7 @@ export default function SuperAdminDashboard() {
           <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Hospitals</h1>
           <p className="text-sm text-slate-500 mt-1">Manage every hospital on the platform</p>
         </div>
-        <Button onClick={() => { setForm(emptyForm); setError(''); setIsModalOpen(true); }}>
-          + Add Hospital
-        </Button>
+        <Button onClick={openModal}>+ Add Hospital</Button>
       </div>
 
       {overview && (
@@ -100,19 +119,76 @@ export default function SuperAdminDashboard() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Hospital">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input id="name" label="Hospital Name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
-          <Input id="timezone" label="Timezone (IANA name)" placeholder="e.g. Africa/Addis_Ababa" value={form.timezone} onChange={(e) => setForm((p) => ({ ...p, timezone: e.target.value }))} />
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <Input
+            id="name"
+            name="name"
+            label="Hospital Name"
+            value={values.name}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.name ? errors.name : null}
+          />
+          <Input
+            id="timezone"
+            name="timezone"
+            label="Timezone (IANA name)"
+            placeholder="e.g. Africa/Addis_Ababa"
+            value={values.timezone}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
 
           <p className="text-xs uppercase text-slate-400 pt-2">First Hospital Admin</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input id="adminFirstName" label="First Name" value={form.adminFirstName} onChange={(e) => setForm((p) => ({ ...p, adminFirstName: e.target.value }))} required />
-            <Input id="adminLastName" label="Last Name" value={form.adminLastName} onChange={(e) => setForm((p) => ({ ...p, adminLastName: e.target.value }))} required />
+            <Input
+              id="adminFirstName"
+              name="adminFirstName"
+              label="First Name"
+              value={values.adminFirstName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.adminFirstName ? errors.adminFirstName : null}
+            />
+            <Input
+              id="adminLastName"
+              name="adminLastName"
+              label="Last Name"
+              value={values.adminLastName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.adminLastName ? errors.adminLastName : null}
+            />
           </div>
-          <Input id="adminEmail" type="email" label="Admin Email" value={form.adminEmail} onChange={(e) => setForm((p) => ({ ...p, adminEmail: e.target.value }))} required />
-          <Input id="adminPassword" type="password" label="Admin Temporary Password" value={form.adminPassword} onChange={(e) => setForm((p) => ({ ...p, adminPassword: e.target.value }))} required />
+          <Input
+            id="adminEmail"
+            name="adminEmail"
+            type="email"
+            label="Admin Email"
+            value={values.adminEmail}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.adminEmail ? errors.adminEmail : null}
+          />
+          <div>
+            <Input
+              id="adminPassword"
+              name="adminPassword"
+              type="password"
+              label="Admin Temporary Password"
+              value={values.adminPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.adminPassword ? errors.adminPassword : null}
+            />
+            {!errors.adminPassword && (
+              <p className="text-xs text-slate-400 mt-1.5">
+                At least 8 characters, with an uppercase letter, a lowercase letter, and a number.
+              </p>
+            )}
+          </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {submitError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{submitError}</p>}
           <Button type="submit" isLoading={createMutation.isPending}>Create Hospital</Button>
         </form>
       </Modal>

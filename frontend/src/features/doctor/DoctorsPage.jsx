@@ -8,6 +8,8 @@ import Button from '../../shared/components/Button';
 import Badge from '../../shared/components/Badge';
 import { fetchDoctors, createDoctor, setDoctorActive, setDoctorAvailability } from '../../api/doctor.api';
 import { fetchDepartments } from '../../api/department.api';
+import { useFormValidation } from '../../shared/hooks/useFormValidation';
+import { required, email as emailRule, passwordStrength, minValue, compose } from '../../shared/utils/validators';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
@@ -19,25 +21,34 @@ const navItems = [
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+const doctorValidators = {
+  firstName: required('First name'),
+  lastName: required('Last name'),
+  email: compose(required('Email'), emailRule),
+  password: compose(required('Password'), passwordStrength),
+  departmentId: required('Department'),
+  specialization: required('Specialization'),
+  experience: minValue(0, 'Experience'),
+  consultationDuration: minValue(5, 'Consultation duration'),
+};
+
 const emptyDoctorForm = {
-  email: '',
-  password: '',
-  firstName: '',
-  lastName: '',
-  phone: '',
-  departmentId: '',
-  specialization: '',
-  experience: 0,
-  consultationDuration: 30,
+  email: '', password: '', firstName: '', lastName: '', phone: '',
+  departmentId: '', specialization: '', experience: 0, consultationDuration: 30,
 };
 
 export default function DoctorsPage() {
   const queryClient = useQueryClient();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [availabilityDoctor, setAvailabilityDoctor] = useState(null);
-  const [form, setForm] = useState(emptyDoctorForm);
   const [availability, setAvailability] = useState([]);
-  const [error, setError] = useState('');
+  const [availabilityError, setAvailabilityError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+
+  const { values, errors, touched, handleChange, handleBlur, setFieldValue, validateAll, reset } = useFormValidation(
+    emptyDoctorForm,
+    doctorValidators
+  );
 
   const { data: doctors, isLoading } = useQuery({ queryKey: ['doctors'], queryFn: () => fetchDoctors() });
   const { data: departments } = useQuery({ queryKey: ['departments'], queryFn: () => fetchDepartments() });
@@ -47,9 +58,9 @@ export default function DoctorsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
       setIsCreateOpen(false);
-      setForm(emptyDoctorForm);
+      reset(emptyDoctorForm);
     },
-    onError: (err) => setError(err.response?.data?.message || 'Failed to create doctor'),
+    onError: (err) => setSubmitError(err.response?.data?.message || 'Failed to create doctor'),
   });
 
   const toggleActiveMutation = useMutation({
@@ -63,13 +74,19 @@ export default function DoctorsPage() {
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
       setAvailabilityDoctor(null);
     },
-    onError: (err) => setError(err.response?.data?.message || 'Failed to update availability'),
+    onError: (err) => setAvailabilityError(err.response?.data?.message || 'Failed to update availability'),
   });
+
+  function openCreateModal() {
+    reset(emptyDoctorForm);
+    setSubmitError('');
+    setIsCreateOpen(true);
+  }
 
   function openAvailabilityModal(doctor) {
     setAvailabilityDoctor(doctor);
     setAvailability(doctor.availability?.length ? doctor.availability : []);
-    setError('');
+    setAvailabilityError('');
   }
 
   function addAvailabilityRow() {
@@ -84,15 +101,30 @@ export default function DoctorsPage() {
     setAvailability((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function validateAvailability() {
+    if (availability.length === 0) return 'Add at least one time slot.';
+    for (const row of availability) {
+      if (!row.startTime || !row.endTime) return 'Every slot needs a start and end time.';
+      if (row.startTime >= row.endTime) return `${row.day}: end time must be after start time.`;
+    }
+    return null;
+  }
+
   function handleCreateSubmit(e) {
     e.preventDefault();
-    setError('');
-    createMutation.mutate(form);
+    setSubmitError('');
+    if (!validateAll()) return;
+    createMutation.mutate(values);
   }
 
   function handleAvailabilitySubmit(e) {
     e.preventDefault();
-    setError('');
+    const shapeError = validateAvailability();
+    if (shapeError) {
+      setAvailabilityError(shapeError);
+      return;
+    }
+    setAvailabilityError('');
     availabilityMutation.mutate({ id: availabilityDoctor._id, availability });
   }
 
@@ -110,9 +142,7 @@ export default function DoctorsPage() {
           <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Doctors</h1>
           <p className="text-sm text-slate-500 mt-1">Manage doctor profiles and availability</p>
         </div>
-        <Button onClick={() => { setForm(emptyDoctorForm); setError(''); setIsCreateOpen(true); }}>
-          + Add Doctor
-        </Button>
+        <Button onClick={openCreateModal}>+ Add Doctor</Button>
       </div>
 
       <div className="mt-6">
@@ -125,10 +155,7 @@ export default function DoctorsPage() {
             emptyMessage="No doctors yet — add your first one above."
             actions={(row) => (
               <div className="flex gap-2 flex-wrap">
-                <button
-                  onClick={() => openAvailabilityModal(row)}
-                  className="text-xs font-medium text-brand hover:underline"
-                >
+                <button onClick={() => openAvailabilityModal(row)} className="text-xs font-medium text-brand hover:underline">
                   Set Availability
                 </button>
                 <button
@@ -143,44 +170,79 @@ export default function DoctorsPage() {
         )}
       </div>
 
-      {/* Create Doctor modal */}
       <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Add Doctor">
-        <form onSubmit={handleCreateSubmit} className="space-y-4">
+        <form onSubmit={handleCreateSubmit} className="space-y-4" noValidate>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input id="firstName" label="First Name" value={form.firstName} onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))} required />
-            <Input id="lastName" label="Last Name" value={form.lastName} onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))} required />
+            <Input
+              id="firstName" name="firstName" label="First Name"
+              value={values.firstName} onChange={handleChange} onBlur={handleBlur}
+              error={touched.firstName ? errors.firstName : null}
+            />
+            <Input
+              id="lastName" name="lastName" label="Last Name"
+              value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+              error={touched.lastName ? errors.lastName : null}
+            />
           </div>
-          <Input id="email" type="email" label="Email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} required />
-          <Input id="password" type="password" label="Temporary Password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} required />
-          <Input id="phone" label="Phone" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} />
+          <Input
+            id="email" name="email" type="email" label="Email"
+            value={values.email} onChange={handleChange} onBlur={handleBlur}
+            error={touched.email ? errors.email : null}
+          />
+          <div>
+            <Input
+              id="password" name="password" type="password" label="Temporary Password"
+              value={values.password} onChange={handleChange} onBlur={handleBlur}
+              error={touched.password ? errors.password : null}
+            />
+            {!errors.password && (
+              <p className="text-xs text-slate-400 mt-1.5">At least 8 characters, uppercase, lowercase, and a number.</p>
+            )}
+          </div>
+          <Input id="phone" name="phone" label="Phone" value={values.phone} onChange={handleChange} onBlur={handleBlur} />
 
           <div className="w-full">
             <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
             <select
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-brand"
-              value={form.departmentId}
-              onChange={(e) => setForm((p) => ({ ...p, departmentId: e.target.value }))}
-              required
+              className={`w-full rounded-lg border px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-brand ${
+                touched.departmentId && errors.departmentId ? 'border-red-400' : 'border-slate-300'
+              }`}
+              value={values.departmentId}
+              onChange={(e) => setFieldValue('departmentId', e.target.value)}
+              onBlur={handleBlur}
+              name="departmentId"
             >
               <option value="">Select a department</option>
-              {departments?.map((d) => (
-                <option key={d._id} value={d._id}>{d.name}</option>
-              ))}
+              {departments?.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}
             </select>
+            {touched.departmentId && errors.departmentId && (
+              <p className="mt-1 text-xs text-red-500">{errors.departmentId}</p>
+            )}
           </div>
 
-          <Input id="specialization" label="Specialization" value={form.specialization} onChange={(e) => setForm((p) => ({ ...p, specialization: e.target.value }))} required />
+          <Input
+            id="specialization" name="specialization" label="Specialization"
+            value={values.specialization} onChange={handleChange} onBlur={handleBlur}
+            error={touched.specialization ? errors.specialization : null}
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input id="experience" type="number" min="0" label="Years of Experience" value={form.experience} onChange={(e) => setForm((p) => ({ ...p, experience: Number(e.target.value) }))} />
-            <Input id="consultationDuration" type="number" min="5" label="Consultation Duration (min)" value={form.consultationDuration} onChange={(e) => setForm((p) => ({ ...p, consultationDuration: Number(e.target.value) }))} />
+            <Input
+              id="experience" name="experience" type="number" min="0" label="Years of Experience"
+              value={values.experience} onChange={handleChange} onBlur={handleBlur}
+              error={touched.experience ? errors.experience : null}
+            />
+            <Input
+              id="consultationDuration" name="consultationDuration" type="number" min="5" label="Consultation Duration (min)"
+              value={values.consultationDuration} onChange={handleChange} onBlur={handleBlur}
+              error={touched.consultationDuration ? errors.consultationDuration : null}
+            />
           </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {submitError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{submitError}</p>}
           <Button type="submit" isLoading={createMutation.isPending}>Create Doctor</Button>
         </form>
       </Modal>
 
-      {/* Availability modal */}
       <Modal
         isOpen={!!availabilityDoctor}
         onClose={() => setAvailabilityDoctor(null)}
@@ -199,9 +261,7 @@ export default function DoctorsPage() {
                     value={row.day}
                     onChange={(e) => updateAvailabilityRow(index, 'day', e.target.value)}
                   >
-                    {DAYS.map((d) => (
-                      <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
-                    ))}
+                    {DAYS.map((d) => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
                   </select>
                 </div>
                 <div className="flex-1 min-w-[90px]">
@@ -222,26 +282,18 @@ export default function DoctorsPage() {
                     onChange={(e) => updateAvailabilityRow(index, 'endTime', e.target.value)}
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeAvailabilityRow(index)}
-                  className="text-red-500 text-xs font-medium px-2 py-1.5"
-                >
+                <button type="button" onClick={() => removeAvailabilityRow(index)} className="text-red-500 text-xs font-medium px-2 py-1.5">
                   Remove
                 </button>
               </div>
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={addAvailabilityRow}
-            className="text-sm font-medium text-brand hover:underline"
-          >
+          <button type="button" onClick={addAvailabilityRow} className="text-sm font-medium text-brand hover:underline">
             + Add time slot
           </button>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {availabilityError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{availabilityError}</p>}
           <Button type="submit" isLoading={availabilityMutation.isPending}>Save Availability</Button>
         </form>
       </Modal>

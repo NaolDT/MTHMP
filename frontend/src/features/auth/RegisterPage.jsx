@@ -7,22 +7,37 @@ import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import { fetchPublicTenants } from '../../api/tenant.api';
 import { registerPatientRequest } from '../../api/auth.api';
+import { useFormValidation } from '../../shared/hooks/useFormValidation';
+import { required, email as emailRule, passwordStrength, pastDate, isTrue, compose } from '../../shared/utils/validators';
+
+const validators = {
+  firstName: required('First name'),
+  lastName: required('Last name'),
+  email: compose(required('Email'), emailRule),
+  password: compose(required('Password'), passwordStrength),
+  phone: required('Phone'),
+  dateOfBirth: compose(required('Date of birth'), pastDate('Date of birth')),
+  agreedToTerms: isTrue('You must agree to the Terms & Conditions to continue'),
+};
 
 const emptyForm = {
   email: '', password: '', firstName: '', lastName: '', phone: '',
-  dateOfBirth: '', gender: 'prefer-not-to-say',
+  dateOfBirth: '', gender: 'prefer-not-to-say', agreedToTerms: false,
 };
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1 = pick hospital, 2 = personal details
+  const [step, setStep] = useState(1);
   const [search, setSearch] = useState('');
   const [selectedTenant, setSelectedTenant] = useState(null);
-  const [form, setForm] = useState(emptyForm);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const { values, errors, touched, handleChange, handleBlur, setFieldValue, validateAll } = useFormValidation(
+    emptyForm,
+    validators
+  );
 
   const { data: tenants, isLoading: tenantsLoading } = useQuery({
     queryKey: ['tenants', 'public'],
@@ -43,19 +58,16 @@ export default function RegisterPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
-
-    if (!agreedToTerms) {
-      setError('Please agree to the Terms & Conditions to continue.');
-      return;
-    }
+    setSubmitError('');
+    if (!validateAll()) return;
 
     setIsSubmitting(true);
     try {
-      await registerPatientRequest({ ...form, tenantSlug: selectedTenant.slug });
+      await registerPatientRequest({ ...values, tenantSlug: selectedTenant.slug });
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const details = err.response?.data?.details;
+      setSubmitError(Array.isArray(details) ? details.join(' ') : err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -89,17 +101,12 @@ export default function RegisterPage() {
             {step === 1 ? 'Find Your Hospital' : 'Create Your Account'}
           </h1>
           <p className="mt-1 text-center text-sm text-slate-500">
-            {step === 1 ? 'Search for the hospital you\'d like to register with' : `Registering with ${selectedTenant?.name}`}
+            {step === 1 ? "Search for the hospital you'd like to register with" : `Registering with ${selectedTenant?.name}`}
           </p>
 
           {step === 1 && (
             <div className="mt-6">
-              <Input
-                id="search"
-                placeholder="Search hospitals…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+              <Input id="search" placeholder="Search hospitals…" value={search} onChange={(e) => setSearch(e.target.value)} />
               <div className="mt-4 space-y-2 max-h-72 overflow-y-auto">
                 {tenantsLoading ? (
                   <p className="text-sm text-slate-400 text-center py-4">Loading hospitals…</p>
@@ -121,30 +128,57 @@ export default function RegisterPage() {
           )}
 
           {step === 2 && (
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="text-xs font-medium text-brand hover:underline"
-              >
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+              <button type="button" onClick={() => setStep(1)} className="text-xs font-medium text-brand hover:underline">
                 ← Change hospital
               </button>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input id="firstName" label="First Name" value={form.firstName} onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))} required />
-                <Input id="lastName" label="Last Name" value={form.lastName} onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))} required />
+                <Input
+                  id="firstName" name="firstName" label="First Name"
+                  value={values.firstName} onChange={handleChange} onBlur={handleBlur}
+                  error={touched.firstName ? errors.firstName : null}
+                />
+                <Input
+                  id="lastName" name="lastName" label="Last Name"
+                  value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  error={touched.lastName ? errors.lastName : null}
+                />
               </div>
-              <Input id="email" type="email" label="Email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} required />
-              <Input id="password" type="password" label="Password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} required />
-              <Input id="phone" label="Phone" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} required />
+              <Input
+                id="email" name="email" type="email" label="Email"
+                value={values.email} onChange={handleChange} onBlur={handleBlur}
+                error={touched.email ? errors.email : null}
+              />
+              <div>
+                <Input
+                  id="password" name="password" type="password" label="Password"
+                  value={values.password} onChange={handleChange} onBlur={handleBlur}
+                  error={touched.password ? errors.password : null}
+                />
+                {!errors.password && (
+                  <p className="text-xs text-slate-400 mt-1.5">
+                    At least 8 characters, with an uppercase letter, a lowercase letter, and a number.
+                  </p>
+                )}
+              </div>
+              <Input
+                id="phone" name="phone" label="Phone"
+                value={values.phone} onChange={handleChange} onBlur={handleBlur}
+                error={touched.phone ? errors.phone : null}
+              />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input id="dateOfBirth" type="date" label="Date of Birth" value={form.dateOfBirth} onChange={(e) => setForm((p) => ({ ...p, dateOfBirth: e.target.value }))} required />
+                <Input
+                  id="dateOfBirth" name="dateOfBirth" type="date" label="Date of Birth"
+                  value={values.dateOfBirth} onChange={handleChange} onBlur={handleBlur}
+                  error={touched.dateOfBirth ? errors.dateOfBirth : null}
+                />
                 <div className="w-full">
                   <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
                   <select
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
-                    value={form.gender}
-                    onChange={(e) => setForm((p) => ({ ...p, gender: e.target.value }))}
+                    value={values.gender}
+                    onChange={(e) => setFieldValue('gender', e.target.value)}
                   >
                     <option value="prefer-not-to-say">Prefer not to say</option>
                     <option value="male">Male</option>
@@ -154,22 +188,28 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <label className="flex items-start gap-2 text-xs text-slate-500 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-0.5 rounded border-slate-300"
-                />
-                <span>
-                  I agree to the{' '}
-                  <Link to="/terms" target="_blank" className="text-brand hover:underline">Terms &amp; Conditions</Link>{' '}
-                  and{' '}
-                  <Link to="/privacy" target="_blank" className="text-brand hover:underline">Privacy Policy</Link>
-                </span>
-              </label>
+              <div>
+                <label className="flex items-start gap-2 text-xs text-slate-500 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={values.agreedToTerms}
+                    onChange={(e) => setFieldValue('agreedToTerms', e.target.checked)}
+                    onBlur={() => handleBlur({ target: { name: 'agreedToTerms', value: values.agreedToTerms } })}
+                    className="mt-0.5 rounded border-slate-300"
+                  />
+                  <span>
+                    I agree to the{' '}
+                    <Link to="/terms" target="_blank" className="text-brand hover:underline">Terms &amp; Conditions</Link>{' '}
+                    and{' '}
+                    <Link to="/privacy" target="_blank" className="text-brand hover:underline">Privacy Policy</Link>
+                  </span>
+                </label>
+                {touched.agreedToTerms && errors.agreedToTerms && (
+                  <p className="mt-1 text-xs text-red-500">{errors.agreedToTerms}</p>
+                )}
+              </div>
 
-              {error && <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</p>}
+              {submitError && <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{submitError}</p>}
 
               <Button type="submit" isLoading={isSubmitting} className="w-full">Create Account</Button>
             </form>

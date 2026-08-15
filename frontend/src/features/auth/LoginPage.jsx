@@ -1,35 +1,44 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
+import { useFormValidation } from '../../shared/hooks/useFormValidation';
+import { required, email as emailRule, compose } from '../../shared/utils/validators';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({ email: '', password: '', tenantSlug: '' });
   const [isSuperAdminLogin, setIsSuperAdminLogin] = useState(false);
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  function handleChange(e) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
+  const validators = {
+    email: compose(required('Email'), emailRule),
+    password: required('Password'),
+    tenantSlug: (value) => (isSuperAdminLogin ? null : required('Hospital')(value)),
+  };
+
+  const { values, errors, touched, handleChange, handleBlur, validateAll } = useFormValidation(
+    { email: '', password: '', tenantSlug: '' },
+    validators
+  );
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
+    setSubmitError('');
+    if (!validateAll()) return;
+
     setIsLoading(true);
     try {
       const user = await login({
-        email: form.email,
-        password: form.password,
-        tenantSlug: isSuperAdminLogin ? undefined : form.tenantSlug,
+        email: values.email,
+        password: values.password,
+        tenantSlug: isSuperAdminLogin ? undefined : values.tenantSlug,
       });
       navigate(`/${user.role}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      setSubmitError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -38,35 +47,40 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
       <div className="w-full sm:max-w-md bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-        <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark text-center">
-          MTHMP Login
-        </h1>
-        <p className="mt-1 text-center text-sm text-slate-500">
-          Multi-Tenant Healthcare Management Platform
-        </p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark text-center">MTHMP Login</h1>
+        <p className="mt-1 text-center text-sm text-slate-500">Multi-Tenant Healthcare Management Platform</p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
           <Input
             id="email"
             name="email"
             type="email"
             label="Email"
             placeholder="you@example.com"
-            value={form.email}
+            value={values.email}
             onChange={handleChange}
-            required
+            onBlur={handleBlur}
+            error={touched.email ? errors.email : null}
           />
 
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            label="Password"
-            placeholder="••••••••"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          <div>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              label="Password"
+              placeholder="••••••••"
+              value={values.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.password ? errors.password : null}
+            />
+            <div className="text-right mt-1.5">
+              <Link to="/forgot-password" className="text-xs font-medium text-brand hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
 
           {!isSuperAdminLogin && (
             <Input
@@ -75,23 +89,20 @@ export default function LoginPage() {
               type="text"
               label="Hospital"
               placeholder="e.g. st-mary-hospital"
-              value={form.tenantSlug}
+              value={values.tenantSlug}
               onChange={handleChange}
-              required={!isSuperAdminLogin}
+              onBlur={handleBlur}
+              error={touched.tenantSlug ? errors.tenantSlug : null}
             />
           )}
 
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</p>
+          {submitError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{submitError}</p>
           )}
 
-          <Button type="submit" isLoading={isLoading} className="w-full">
-            Log In
-          </Button>
+          <Button type="submit" isLoading={isLoading} className="w-full">Log In</Button>
         </form>
-<p className="mt-4 text-center text-sm text-slate-500">
-  New patient? <a href="/register" className="text-brand hover:underline">Register here</a>
-</p>
+
         <div className="mt-4 flex items-center justify-between text-xs sm:text-sm text-slate-500">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -103,6 +114,10 @@ export default function LoginPage() {
             Super Admin login
           </label>
         </div>
+
+        <p className="mt-4 text-center text-sm text-slate-500">
+          New patient? <Link to="/register" className="text-brand hover:underline">Register here</Link>
+        </p>
       </div>
     </div>
   );

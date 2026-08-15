@@ -16,6 +16,8 @@ import HomePage from '../features/marketing/HomePage';
 import RegisterPage from '../features/auth/RegisterPage';
 import TermsPage from '../features/marketing/TermsPage';
 import PrivacyPage from '../features/marketing/PrivacyPage';
+import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 const receptionistNavItems = [
   { to: '/receptionist', label: 'Dashboard' },
   { to: '/receptionist/patients', label: 'Patients' },
@@ -29,15 +31,15 @@ const adminPatientAppointmentNavItems = [
   { to: '/admin/patients', label: 'Patients' },
   { to: '/admin/appointments', label: 'Appointments' },
 ];
-function PlaceholderDashboard({ label }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <p className="text-lg sm:text-xl text-brand-dark text-center">
-        Logged in as <strong>{label}</strong> — dashboard coming in a later phase.
-      </p>
-    </div>
-  );
-}
+// function PlaceholderDashboard({ label }) {
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+//       <p className="text-lg sm:text-xl text-brand-dark text-center">
+//         Logged in as <strong>{label}</strong> — dashboard coming in a later phase.
+//       </p>
+//     </div>
+//   );
+// }
 
 export default function App() {
   return (
@@ -130,6 +132,8 @@ export default function App() {
   path="/patient/book"
   element={<ProtectedRoute allowedRoles={['patient']}><BookAppointmentPage /></ProtectedRoute>}
 />
+<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+<Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
