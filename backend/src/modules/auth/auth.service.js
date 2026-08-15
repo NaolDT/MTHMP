@@ -7,7 +7,9 @@ const Tenant = require('../tenant/tenant.model');
 const Patient = require('../patient/patient.model');
 const ApiError = require('../../shared/utils/ApiError');
 const auditService = require('../audit/audit.service');
-const { jwt: jwtConfig } = require('../../config/env');
+const crypto = require('crypto');
+const notificationService = require('../notification/notification.service');
+const { jwt: jwtConfig, clientUrl } = require('../../config/env');
 
 function signAccessToken(user) {
   return jwt.sign(
@@ -104,11 +106,7 @@ async function logout(userId) {
   await User.findByIdAndUpdate(userId, { refreshTokenHash: null }).setOptions({ skipTenantScope: true });
 }
 
-/**
- * Self-service patient registration against a specific hospital (tenant).
- * A separate receptionist-initiated "register patient on behalf of" flow
- * belongs in the patient module (Phase 6) and reuses the same pattern.
- */
+
 async function registerPatient(input, req) {
   const tenant = await Tenant.findOne({ slug: input.tenantSlug, isActive: true });
   if (!tenant) throw ApiError.notFound('Hospital not found or inactive');
@@ -173,4 +171,72 @@ async function registerPatient(input, req) {
   }
 }
 
-module.exports = { login, refresh, logout, registerPatient, issueTokenPair };
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; 
+
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+async function requestPasswordReset({ email, tenantSlug }, req) {
+  let tenantId = null;
+  if (tenantSlug) {
+    const tenant = await Tenant.findOne({ slug: tenantSlug, isActive: true });
+    if (!tenant) return;
+    tenantId = tenant._id;
+  }
+
+  const query = tenantId ? { email, tenantId } : { email, role: 'super-admin' };
+  const user = await User.findOne(query).setOptions({ skipTenantScope: true });
+
+  if (!user || !user.isActive) return;
+
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = hashToken(rawToken);
+  user.resetPasswordExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+  await user.save({ validateModifiedOnly: true });
+
+  const resetUrl = `${clientUrl}/reset-password?token=${rawToken}`;
+  await notificationService.sendPasswordReset({ to: user.email, firstName: user.firstName, resetUrl });
+
+  await auditService.record({
+    tenantId: user.tenantId,
+    userId: user._id,
+    action: 'UPDATE',
+    resource: 'USER',
+    resourceId: user._id,
+    req,
+    details: { action: 'password_reset_requested' },
+  });
+}
+
+async function resetPassword({ token, password }, req) {
+  const hashedToken = hashToken(token);
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: new Date() },
+  })
+    .select('+resetPasswordToken +resetPasswordExpires')
+    .setOptions({ skipTenantScope: true });
+
+  if (!user) {
+    throw ApiError.badRequest('This reset link is invalid or has expired. Please request a new one.');
+  }
+
+  user.passwordHash = await User.hashPassword(password);
+  user.resetPasswordToken = null;
+  user.resetPasswordExpires = null;
+  user.refreshTokenHash = null; // revoke existing sessions on password change
+  await user.save({ validateModifiedOnly: true });
+
+  await auditService.record({
+    tenantId: user.tenantId,
+    userId: user._id,
+    action: 'UPDATE',
+    resource: 'USER',
+    resourceId: user._id,
+    req,
+    details: { action: 'password_reset_completed' },
+  });
+}
+
+module.exports = { login, refresh, logout, registerPatient, issueTokenPair, requestPasswordReset, resetPassword };

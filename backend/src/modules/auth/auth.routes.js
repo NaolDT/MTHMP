@@ -22,5 +22,7 @@ router.post('/register/patient', authLimiter, validate(validation.registerPatien
 
 router.post('/logout', authenticate, controller.logout);
 router.get('/me', authenticate, controller.me);
+router.post('/forgot-password', authLimiter, validate(validation.forgotPassword), controller.forgotPassword);
+router.post('/reset-password', authLimiter, validate(validation.resetPassword), controller.resetPassword);
 
 module.exports = router;

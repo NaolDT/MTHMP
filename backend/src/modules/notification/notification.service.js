@@ -74,4 +74,19 @@ async function sendAppointmentCancelled({ patientEmail, patientName, doctorName,
   });
 }
 
-module.exports = { sendMail, sendAppointmentBooked, sendAppointmentCancelled };
+async function sendPasswordReset({ to, firstName, resetUrl }) {
+  await sendMail({
+    to,
+    subject: 'Reset your MTHMP password',
+    html: `
+      <h2>Reset your password</h2>
+      <p>Hi ${firstName},</p>
+      <p>We received a request to reset your MTHMP password. This link is valid for 1 hour:</p>
+      <p><a href="${resetUrl}">${resetUrl}</a></p>
+      <p>If you didn't request this, you can safely ignore this email — your password will not change.</p>
+      <p>— MTHMP</p>
+    `,
+  });
+}
+
+module.exports = { sendMail, sendAppointmentBooked, sendAppointmentCancelled, sendPasswordReset };

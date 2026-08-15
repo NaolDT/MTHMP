@@ -38,4 +38,14 @@ const registerPatient = Joi.object({
   tenantSlug: Joi.string().required(),
 });
 
-module.exports = { login, refresh, registerStaff, registerPatient };
+const forgotPassword = Joi.object({
+  email: Joi.string().email().required(),
+  tenantSlug: Joi.string().optional(),
+});
+
+const resetPassword = Joi.object({
+  token: Joi.string().required(),
+  password: passwordRule,
+});
+
+module.exports = { login, refresh, registerStaff, registerPatient, forgotPassword, resetPassword };

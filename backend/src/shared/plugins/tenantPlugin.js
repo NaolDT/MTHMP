@@ -1,19 +1,24 @@
 const { Schema } = require('mongoose');
-function tenantPlugin(schema) {
+
+
+ 
+function tenantPlugin(schema, options = {}) {
+  const tenantIdRequired = options.tenantIdRequired !== false; // defaults to true
+
   schema.add({
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: 'Tenant',
-      required: true,
+      required: tenantIdRequired,
       index: true,
     },
   });
 
   const scopedQueryMiddleware = function (next) {
-    const options = this.getOptions();
+    const queryOptions = this.getOptions();
     const filter = this.getFilter();
 
-    if (options.skipTenantScope) {
+    if (queryOptions.skipTenantScope) {
       return next();
     }
 
@@ -21,8 +26,8 @@ function tenantPlugin(schema) {
       return next();
     }
 
-    if (options.tenantId) {
-      this.where({ tenantId: options.tenantId });
+    if (queryOptions.tenantId) {
+      this.where({ tenantId: queryOptions.tenantId });
       return next();
     }
 
@@ -40,7 +45,7 @@ function tenantPlugin(schema) {
   );
 
   schema.pre('save', function (next) {
-    if (this.isNew && !this.tenantId) {
+    if (tenantIdRequired && this.isNew && !this.tenantId) {
       return next(new Error(`Cannot save "${this.constructor.modelName}" without a tenantId.`));
     }
     next();

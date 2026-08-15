@@ -68,7 +68,22 @@ async function createTestPatient(tenantId, userOverrides = {}, patientOverrides 
   });
   return { user, patient };
 }
+const Appointment = require('../../src/modules/appointment/appointment.model');
 
+async function createTestAppointment(tenantId, { doctorId, patientId, departmentId, bookedBy, ...overrides }) {
+  return Appointment.create({
+    tenantId,
+    doctorId,
+    patientId,
+    departmentId,
+    bookedBy,
+    date: new Date('2026-09-07T00:00:00Z'), 
+    startTime: '09:00',
+    endTime: '09:30',
+    status: 'booked',
+    ...overrides,
+  });
+}
 module.exports = {
   createTestTenant,
   createTestUser,
@@ -76,4 +91,5 @@ module.exports = {
   createTestDepartment,
   createTestDoctor,
   createTestPatient,
+  createTestAppointment,
 };

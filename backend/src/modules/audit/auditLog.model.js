@@ -23,7 +23,8 @@ const AuditLogSchema = new Schema(
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
-AuditLogSchema.plugin(tenantPlugin);
+
+AuditLogSchema.plugin(tenantPlugin, { tenantIdRequired: false });
 AuditLogSchema.index({ tenantId: 1, createdAt: -1 });
 AuditLogSchema.index({ tenantId: 1, userId: 1 });
 AuditLogSchema.index({ tenantId: 1, resource: 1, action: 1 });
