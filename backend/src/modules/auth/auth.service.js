@@ -211,12 +211,12 @@ async function requestPasswordReset({ email, tenantSlug }, req) {
 
 async function resetPassword({ token, password }, req) {
   const hashedToken = hashToken(token);
-  const user = await User.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordExpires: { $gt: new Date() },
-  })
-    .select('+resetPasswordToken +resetPasswordExpires')
-    .setOptions({ skipTenantScope: true });
+ const user = await User.findOne({
+  resetPasswordToken: hashedToken,
+  resetPasswordExpires: { $gt: new Date() },
+})
+  .select('+resetPasswordToken +resetPasswordExpires +refreshTokenHash')
+  .setOptions({ skipTenantScope: true });
 
   if (!user) {
     throw ApiError.badRequest('This reset link is invalid or has expired. Please request a new one.');
