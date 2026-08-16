@@ -7,6 +7,8 @@ import PageHeader from '../../shared/components/PageHeader';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
+    { to: '/admin/hospital-profile', label: 'Hospital Profile' },
+
   { to: '/admin/departments', label: 'Departments' },
   { to: '/admin/doctors', label: 'Doctors' },
   { to: '/admin/patients', label: 'Patients' },

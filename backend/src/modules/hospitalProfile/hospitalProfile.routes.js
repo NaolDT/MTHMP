@@ -8,10 +8,14 @@ const authorize = require('../../shared/middlewares/authorize');
 
 const router = Router();
 
-router.use(authenticate, authorize('admin'));
+router.use(authenticate);
 
-router.get('/', controller.getMyProfile);
-router.patch('/', validate(validation.updateProfile), controller.updateMyProfile);
-router.post('/submit', controller.submitForReview);
+router.get('/', authorize('admin'), controller.getMyProfile);
+router.patch('/', authorize('admin'), validate(validation.updateProfile), controller.updateMyProfile);
+router.post('/submit', authorize('admin'), controller.submitForReview);
+
+router.get('/pending', authorize('super-admin'), controller.listPending);
+router.patch('/:id/approve', authorize('super-admin'), controller.approve);
+router.patch('/:id/reject', authorize('super-admin'), validate(validation.rejectProfile), controller.reject);
 
 module.exports = router;

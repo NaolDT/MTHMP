@@ -29,4 +29,8 @@ const updateProfile = Joi.object({
   }),
 }).min(1);
 
-module.exports = { updateProfile };
+const rejectProfile = Joi.object({
+  reason: Joi.string().min(3).required(),
+});
+
+module.exports = { updateProfile, rejectProfile };

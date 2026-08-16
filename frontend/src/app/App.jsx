@@ -18,6 +18,7 @@ import TermsPage from '../features/marketing/TermsPage';
 import PrivacyPage from '../features/marketing/PrivacyPage';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/ResetPasswordPage';
+import HospitalProfilePage from '../features/hospitalProfile/HospitalProfilePage';
 const receptionistNavItems = [
   { to: '/receptionist', label: 'Dashboard' },
   { to: '/receptionist/patients', label: 'Patients' },
@@ -26,6 +27,7 @@ const receptionistNavItems = [
 
 const adminPatientAppointmentNavItems = [
   { to: '/admin', label: 'Dashboard' },
+  { to: '/admin/hospital-profile', label: 'Hospital Profile' },
   { to: '/admin/departments', label: 'Departments' },
   { to: '/admin/doctors', label: 'Doctors' },
   { to: '/admin/patients', label: 'Patients' },
@@ -134,6 +136,14 @@ export default function App() {
 />
 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 <Route path="/reset-password" element={<ResetPasswordPage />} />
+<Route
+  path="/admin/hospital-profile"
+  element={
+    <ProtectedRoute allowedRoles={['admin']}>
+      <HospitalProfilePage />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

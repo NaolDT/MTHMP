@@ -122,3 +122,83 @@ describe('POST /api/v1/hospital-profile/submit', () => {
     expect(res.status).toBe(400);
   });
 });
+describe('Super Admin review workflow', () => {
+  it('lists only pending profiles, oldest first', async () => {
+    const { token: superToken } = await (async () => {
+      const superAdmin = await createTestUser({ role: 'super-admin' });
+      return { token: signTestAccessToken(superAdmin) };
+    })();
+
+    const { token: adminToken } = await setupAdmin({ name: 'Hospital A' });
+    await request(app).post('/api/v1/hospital-profile/submit').set('Authorization', `Bearer ${adminToken}`);
+
+    const res = await request(app).get('/api/v1/hospital-profile/pending').set('Authorization', `Bearer ${superToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].status).toBe('pending');
+  });
+
+  it('rejects non-super-admin roles from the review endpoints', async () => {
+    const { token } = await setupAdmin();
+    const res = await request(app).get('/api/v1/hospital-profile/pending').set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(403);
+  });
+
+  it('approving a pending profile publishes it', async () => {
+    const superAdmin = await createTestUser({ role: 'super-admin' });
+    const superToken = signTestAccessToken(superAdmin);
+    const { token: adminToken } = await setupAdmin();
+
+    const submitRes = await request(app).post('/api/v1/hospital-profile/submit').set('Authorization', `Bearer ${adminToken}`);
+    const profileId = submitRes.body.data._id;
+
+    const res = await request(app)
+      .patch(`/api/v1/hospital-profile/${profileId}/approve`)
+      .set('Authorization', `Bearer ${superToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('published');
+    expect(res.body.data.publishedAt).not.toBeNull();
+  });
+
+  it('cannot approve a profile that is not pending', async () => {
+    const superAdmin = await createTestUser({ role: 'super-admin' });
+    const superToken = signTestAccessToken(superAdmin);
+    const { token: adminToken } = await setupAdmin();
+
+    // Never submitted — still in draft.
+    const profileRes = await request(app).get('/api/v1/hospital-profile').set('Authorization', `Bearer ${adminToken}`);
+    const profileId = profileRes.body.data._id;
+
+    const res = await request(app)
+      .patch(`/api/v1/hospital-profile/${profileId}/approve`)
+      .set('Authorization', `Bearer ${superToken}`);
+
+    expect(res.status).toBe(400);
+  });
+
+  it('rejecting a pending profile requires a reason and reverts it to draft', async () => {
+    const superAdmin = await createTestUser({ role: 'super-admin' });
+    const superToken = signTestAccessToken(superAdmin);
+    const { token: adminToken } = await setupAdmin();
+
+    const submitRes = await request(app).post('/api/v1/hospital-profile/submit').set('Authorization', `Bearer ${adminToken}`);
+    const profileId = submitRes.body.data._id;
+
+    const withoutReason = await request(app)
+      .patch(`/api/v1/hospital-profile/${profileId}/reject`)
+      .set('Authorization', `Bearer ${superToken}`)
+      .send({ reason: '' });
+    expect(withoutReason.status).toBe(400);
+
+    const withReason = await request(app)
+      .patch(`/api/v1/hospital-profile/${profileId}/reject`)
+      .set('Authorization', `Bearer ${superToken}`)
+      .send({ reason: 'Please add contact information before resubmitting.' });
+
+    expect(withReason.status).toBe(200);
+    expect(withReason.body.data.status).toBe('draft');
+    expect(withReason.body.data.rejectionReason).toBe('Please add contact information before resubmitting.');
+  });
+});
