@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import AppLayout from '../../shared/components/AppLayout';
 import StatCard from '../../shared/components/StatCard';
 import { fetchTenantOverview, fetchAppointmentsTrend } from '../../api/analytics.api';
+import PageHeader from '../../shared/components/PageHeader';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
@@ -25,9 +26,7 @@ export default function AdminDashboard() {
 
   return (
     <AppLayout navItems={navItems} title="Hospital Admin">
-      <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Dashboard</h1>
-      <p className="text-sm text-slate-500 mt-1">Overview of your hospital's activity</p>
-
+     <PageHeader title="Dashboard" subtitle="Overview of your hospital's activity" />
       {overviewLoading ? (
         <p className="mt-6 text-sm text-slate-400">Loading stats…</p>
       ) : (

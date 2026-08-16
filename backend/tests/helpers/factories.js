@@ -84,6 +84,12 @@ async function createTestAppointment(tenantId, { doctorId, patientId, department
     ...overrides,
   });
 }
+const HospitalProfile = require('../../src/modules/hospitalProfile/hospitalProfile.model');
+
+async function createTestHospitalProfile(tenantId, overrides = {}) {
+  return HospitalProfile.create({ tenantId, ...overrides });
+}
+
 module.exports = {
   createTestTenant,
   createTestUser,
@@ -92,4 +98,5 @@ module.exports = {
   createTestDoctor,
   createTestPatient,
   createTestAppointment,
+  createTestHospitalProfile,
 };
