@@ -19,6 +19,8 @@ import PrivacyPage from '../features/marketing/PrivacyPage';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import HospitalProfilePage from '../features/hospitalProfile/HospitalProfilePage';
+import PendingReviewsPage from '../features/hospitalProfile/PendingReviewsPage';
+
 const receptionistNavItems = [
   { to: '/receptionist', label: 'Dashboard' },
   { to: '/receptionist/patients', label: 'Patients' },
@@ -141,6 +143,14 @@ export default function App() {
   element={
     <ProtectedRoute allowedRoles={['admin']}>
       <HospitalProfilePage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/super-admin/pending-reviews"
+  element={
+    <ProtectedRoute allowedRoles={['super-admin']}>
+      <PendingReviewsPage />
     </ProtectedRoute>
   }
 />

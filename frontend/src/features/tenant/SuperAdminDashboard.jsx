@@ -14,7 +14,10 @@ import { required, email as emailRule, passwordStrength, compose } from '../../s
 import PageHeader from '../../shared/components/PageHeader';
 
 
-const navItems = [{ to: '/super-admin', label: 'Hospitals' }];
+const navItems = [
+  { to: '/super-admin', label: 'Hospitals' },
+  { to: '/super-admin/pending-reviews', label: 'Pending Reviews' },
+];
 
 const tenantValidators = {
   name: required('Hospital name'),
