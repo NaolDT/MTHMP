@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import AppLayout from '../../shared/components/AppLayout';
+import PageHeader from '../../shared/components/PageHeader';
 
 const navItems = [
   { to: '/receptionist', label: 'Dashboard' },
@@ -10,8 +11,8 @@ const navItems = [
 export default function ReceptionistDashboard() {
   return (
     <AppLayout navItems={navItems} title="Receptionist">
-      <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Front Desk</h1>
-      <p className="text-sm text-slate-500 mt-1">Register patients and manage today's appointments</p>
+     <PageHeader title="Front Desk" subtitle="Register patients and manage today's appointments" />
+
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
         <Link

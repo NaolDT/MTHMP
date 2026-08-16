@@ -9,6 +9,7 @@ import Badge from '../../shared/components/Badge';
 import { fetchDepartments, createDepartment, updateDepartment, setDepartmentActive } from '../../api/department.api';
 import { useFormValidation } from '../../shared/hooks/useFormValidation';
 import { required, minLength, compose } from '../../shared/utils/validators';
+import PageHeader from '../../shared/components/PageHeader';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
@@ -98,13 +99,11 @@ export default function DepartmentsPage() {
 
   return (
     <AppLayout navItems={navItems} title="Hospital Admin">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Departments</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage your hospital's departments</p>
-        </div>
-        <Button onClick={openCreateModal} className="sm:w-auto">+ Add Department</Button>
-      </div>
+     <PageHeader
+  title="Departments"
+  subtitle="Manage your hospital's departments"
+  actions={<Button onClick={openCreateModal}>+ Add Department</Button>}
+/>
 
       <div className="mt-6">
         {isLoading ? (

@@ -8,6 +8,7 @@ import Button from '../../shared/components/Button';
 import { fetchPatients, registerPatient } from '../../api/patient.api';
 import { useFormValidation } from '../../shared/hooks/useFormValidation';
 import { required, email as emailRule, passwordStrength, pastDate, compose } from '../../shared/utils/validators';
+import PageHeader from '../../shared/components/PageHeader';
 
 const validators = {
   firstName: required('First name'),
@@ -64,13 +65,11 @@ export default function PatientsPage({ navItems, title = 'Hospital Admin' }) {
 
   return (
     <AppLayout navItems={navItems} title={title}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Patients</h1>
-          <p className="text-sm text-slate-500 mt-1">Register walk-in patients and view records</p>
-        </div>
-        <Button onClick={openModal}>+ Register Patient</Button>
-      </div>
+     <PageHeader
+  title="Patients"
+  subtitle="Register walk-in patients and view records"
+  actions={<Button onClick={openModal}>+ Register Patient</Button>}
+/>
 
       <div className="mt-6">
         {isLoading ? (

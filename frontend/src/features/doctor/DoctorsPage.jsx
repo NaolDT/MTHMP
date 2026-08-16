@@ -10,6 +10,7 @@ import { fetchDoctors, createDoctor, setDoctorActive, setDoctorAvailability } fr
 import { fetchDepartments } from '../../api/department.api';
 import { useFormValidation } from '../../shared/hooks/useFormValidation';
 import { required, email as emailRule, passwordStrength, minValue, compose } from '../../shared/utils/validators';
+import PageHeader from '../../shared/components/PageHeader';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
@@ -137,13 +138,11 @@ export default function DoctorsPage() {
 
   return (
     <AppLayout navItems={navItems} title="Hospital Admin">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Doctors</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage doctor profiles and availability</p>
-        </div>
-        <Button onClick={openCreateModal}>+ Add Doctor</Button>
-      </div>
+      <PageHeader
+  title="Doctors"
+  subtitle="Manage doctor profiles and availability"
+  actions={<Button onClick={openCreateModal}>+ Add Doctor</Button>}
+/>
 
       <div className="mt-6">
         {isLoading ? (

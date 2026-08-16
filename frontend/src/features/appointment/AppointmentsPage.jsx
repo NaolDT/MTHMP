@@ -6,7 +6,7 @@ import Modal from '../../shared/components/Modal';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import { fetchAppointments, cancelAppointment } from '../../api/appointment.api';
-
+import PageHeader from '../../shared/components/PageHeader';
 
 
 const statusColors = {
@@ -58,23 +58,23 @@ export default function AppointmentsPage({ navItems, title = 'Hospital Admin' })
 
   return (
     <AppLayout navItems={navItems} title={title}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Appointments</h1>
-          <p className="text-sm text-slate-500 mt-1">View and manage all appointments</p>
-        </div>
-        <select
-          className="w-full sm:w-auto rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
+     <PageHeader
+  title="Appointments"
+  subtitle="View and manage all appointments"
+  actions={
+    <select
+      className="w-full sm:w-auto rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      value={statusFilter}
+      onChange={(e) => setStatusFilter(e.target.value)}
+    >
           <option value="">All statuses</option>
           <option value="booked">Booked</option>
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
           <option value="no-show">No-show</option>
-        </select>
-      </div>
+    </select>
+  }
+/>
 
       <div className="mt-6">
         {isLoading ? (

@@ -11,6 +11,8 @@ import { fetchTenants, createTenant, setTenantActive } from '../../api/tenant.ap
 import { fetchPlatformOverview } from '../../api/analytics.api';
 import { useFormValidation } from '../../shared/hooks/useFormValidation';
 import { required, email as emailRule, passwordStrength, compose } from '../../shared/utils/validators';
+import PageHeader from '../../shared/components/PageHeader';
+
 
 const navItems = [{ to: '/super-admin', label: 'Hospitals' }];
 
@@ -81,13 +83,11 @@ export default function SuperAdminDashboard() {
 
   return (
     <AppLayout navItems={navItems} title="Super Admin">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Hospitals</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage every hospital on the platform</p>
-        </div>
-        <Button onClick={openModal}>+ Add Hospital</Button>
-      </div>
+     <PageHeader
+  title="Hospitals"
+  subtitle="Manage every hospital on the platform"
+  actions={<Button onClick={openModal}>+ Add Hospital</Button>}
+/>
 
       {overview && (
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">

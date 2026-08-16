@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../../shared/components/AppLayout';
 import { fetchAppointments, updateAppointmentStatus } from '../../api/appointment.api';
+import PageHeader from '../../shared/components/PageHeader';
+
 
 const navItems = [{ to: '/doctor', label: 'My Schedule' }];
 
@@ -34,18 +36,18 @@ export default function DoctorDashboard() {
 
   return (
     <AppLayout navItems={navItems} title="Doctor">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">My Schedule</h1>
-          <p className="text-sm text-slate-500 mt-1">Your appointments for the selected day</p>
-        </div>
-        <input
+     <PageHeader
+  title="My Schedule"
+  subtitle="Your appointments for the selected day"
+  actions={
+    <input
           type="date"
           className="w-full sm:w-auto rounded-lg border border-slate-300 px-3 py-2 text-sm"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+         onChange={(e) => setDate(e.target.value)}
         />
-      </div>
+      }
+/>
 
       {error && <p className="mt-4 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 

@@ -6,6 +6,8 @@ import Button from '../../shared/components/Button';
 import { fetchDepartments } from '../../api/department.api';
 import { fetchDoctors } from '../../api/doctor.api';
 import { fetchSlots, bookAppointment } from '../../api/appointment.api';
+import PageHeader from '../../shared/components/PageHeader';
+
 
 const navItems = [
   { to: '/patient', label: 'My Appointments' },
@@ -82,8 +84,7 @@ export default function BookAppointmentPage() {
 
   return (
     <AppLayout navItems={navItems} title="My Account">
-      <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">Book an Appointment</h1>
-
+<PageHeader title="Book an Appointment" />
       <div className="mt-6 max-w-xl space-y-5">
         <div className="w-full">
           <label className="block text-sm font-medium text-slate-700 mb-1">1. Department</label>

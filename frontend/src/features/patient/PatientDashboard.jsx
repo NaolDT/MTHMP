@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import AppLayout from '../../shared/components/AppLayout';
 import { fetchAppointments } from '../../api/appointment.api';
+import PageHeader from '../../shared/components/PageHeader';
+
 
 const navItems = [
   { to: '/patient', label: 'My Appointments' },
@@ -23,15 +25,17 @@ export default function PatientDashboard() {
 
   return (
     <AppLayout navItems={navItems} title="My Account">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h1 className="text-xl sm:text-2xl font-semibold text-brand-dark">My Appointments</h1>
-        <Link
-          to="/patient/book"
-          className="w-full sm:w-auto text-center rounded-lg bg-brand text-white px-4 py-2.5 text-sm font-medium hover:bg-blue-700"
-        >
-          + Book New Appointment
-        </Link>
-      </div>
+      <PageHeader
+  title="My Appointments"
+  actions={
+    <Link
+      to="/patient/book"
+      className="w-full sm:w-auto text-center rounded-lg bg-brand text-white px-4 py-2.5 text-sm font-medium hover:bg-blue-700"
+    >
+      + Book New Appointment
+    </Link>
+  }
+/>
 
       <div className="mt-6 space-y-3">
         {isLoading ? (
