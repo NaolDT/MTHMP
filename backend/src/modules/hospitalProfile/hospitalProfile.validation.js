@@ -27,6 +27,8 @@ const updateProfile = Joi.object({
     email: Joi.string().email().allow(''),
     emergencyPhone: Joi.string().allow(''),
   }),
+  logoUrl: Joi.string().allow(''),
+coverImageUrl: Joi.string().allow(''),
 }).min(1);
 
 const rejectProfile = Joi.object({

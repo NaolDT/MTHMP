@@ -8,6 +8,7 @@ import { fetchMyHospitalProfile, updateHospitalProfile, submitHospitalProfileFor
 import { getProfileCompletion } from './completionScore';
 import CompletionBar from './CompletionBar';
 import ProfileSection from './ProfileSection';
+import ImageUpload from '../../shared/components/ImageUpload';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard' },
@@ -148,6 +149,28 @@ export default function HospitalProfilePage() {
 
       <div className="mt-6 space-y-5">
         <CompletionBar percent={percent} items={items} />
+
+        <ProfileSection title="Branding" description="Your hospital's logo and cover image">
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <ImageUpload
+      label="Logo"
+      category="hospital-logo"
+      value={profile.logoUrl}
+      onChange={(url) => {
+  console.log('Uploading logo, url:', url);
+  updateHospitalProfile({ logoUrl: url }).then((updated) => queryClient.setQueryData(['hospital-profile'], updated));
+}}
+      aspectRatio="aspect-square"
+    />
+    <ImageUpload
+      label="Cover Image"
+      category="hospital-cover"
+      value={profile.coverImageUrl}
+      onChange={(url) => updateHospitalProfile({ coverImageUrl: url }).then((updated) => queryClient.setQueryData(['hospital-profile'], updated))}
+      aspectRatio="aspect-video"
+    />
+  </div>
+</ProfileSection>
 
         <ProfileSection title="Basic Information" description="Tagline, short summary, and founding year" {...basicInfo} onSave={basicInfo.save}>
           <Input

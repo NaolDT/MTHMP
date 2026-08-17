@@ -7,6 +7,7 @@ const CHECKLIST = [
   { key: 'facilities', label: 'Facilities', check: (p) => p.facilities?.length > 0 },
   { key: 'contact', label: 'Contact information', check: (p) => !!p.contactAddress?.phone && !!p.contactAddress?.city },
   { key: 'workingHours', label: 'Working hours', check: (p) => p.workingHours?.length > 0 },
+  { key: 'logo', label: 'Logo', check: (p) => !!p.logoUrl },
 ];
 
 export function getProfileCompletion(profile) {

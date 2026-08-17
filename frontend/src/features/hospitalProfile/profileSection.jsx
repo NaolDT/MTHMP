@@ -7,16 +7,18 @@ export default function ProfileSection({ title, description, children, onSave, i
       <div className="mt-4 space-y-4">{children}</div>
 
       <div className="mt-5 flex items-center gap-3">
-        <button
-          onClick={onSave}
-          disabled={isSaving}
-          className="rounded-lg bg-brand text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors"
-        >
-          {isSaving ? 'Saving…' : 'Save'}
-        </button>
-        {saved && <span className="text-xs text-green-600 font-medium">Saved</span>}
-        {saveError && <span className="text-xs text-red-600">{saveError}</span>}
-      </div>
+  {onSave && (
+    <button
+      onClick={onSave}
+      disabled={isSaving}
+      className="rounded-lg bg-brand text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors"
+    >
+      {isSaving ? 'Saving…' : 'Save'}
+    </button>
+  )}
+  {saved && <span className="text-xs text-green-600 font-medium">Saved</span>}
+  {saveError && <span className="text-xs text-red-600">{saveError}</span>}
+</div>
     </div>
   );
 }
