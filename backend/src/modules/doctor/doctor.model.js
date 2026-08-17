@@ -8,6 +8,15 @@ function toMinutes(hhmm) {
   return h * 60 + m;
 }
 
+const EducationItemSchema = new Schema(
+  {
+    degree: { type: String, required: true },
+    institution: { type: String, required: true },
+    year: { type: Number, default: null },
+  },
+  { _id: false }
+);
+
 const AvailabilitySlotSchema = new Schema(
   {
     day: { type: String, enum: DAYS, required: true },
@@ -28,6 +37,11 @@ const DoctorSchema = new Schema(
     availability: { type: [AvailabilitySlotSchema], default: [] },
     consultationDuration: { type: Number, default: 30, min: 5 }, // minutes
     isActive: { type: Boolean, default: true },
+    bio: { type: String, default: '', maxlength: 1000 },
+photoUrl: { type: String, default: '' },
+education: { type: [EducationItemSchema], default: [] },
+certifications: { type: [String], default: [] },
+languages: { type: [String], default: [] },
   },
   { timestamps: true }
 );

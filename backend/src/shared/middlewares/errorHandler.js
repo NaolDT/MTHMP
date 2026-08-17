@@ -16,6 +16,10 @@ function errorHandler(err, req, res, next) {
     const field = Object.keys(err.keyValue || {})[0];
     message = field ? `A record with this ${field} already exists` : 'Duplicate record';
   }
+   else if (err.code === 'LIMIT_FILE_SIZE') {
+  statusCode = 400;
+  message = 'File is too large — maximum size is 5MB';
+}
 
   if (!statusCode) statusCode = 500;
   if (!message) message = 'Internal server error';

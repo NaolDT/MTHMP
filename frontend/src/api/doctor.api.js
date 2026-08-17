@@ -24,3 +24,13 @@ export async function setDoctorAvailability(id, availability) {
   const { data } = await apiClient.put(`/doctors/${id}/availability`, { availability });
   return data.data;
 }
+
+export async function fetchMyDoctorProfile() {
+  const { data } = await apiClient.get('/doctors/me');
+  return data.data;
+}
+
+export async function updateMyDoctorProfile(payload) {
+  const { data } = await apiClient.patch('/doctors/me', payload);
+  return data.data;
+}

@@ -12,6 +12,7 @@ const router = Router();
 const contentRoutes = require('../modules/content/content.routes');
 const contactRoutes = require('../modules/contact/contact.routes');
 const hospitalProfileRoutes = require('../modules/hospitalProfile/hospitalProfile.routes');
+const uploadRoutes = require('../modules/upload/upload.routes');
 
 router.get('/health', (req, res) => res.status(200).json({ success: true, status: 'ok', time: new Date().toISOString() }));
 
@@ -26,5 +27,6 @@ router.use('/staff', staffRoutes);
 router.use('/content', contentRoutes);
 router.use('/contact', contactRoutes);
 router.use('/hospital-profile', hospitalProfileRoutes);
+router.use('/upload', uploadRoutes);
 
 module.exports = router;

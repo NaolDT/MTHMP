@@ -42,4 +42,18 @@ const setAvailability = Joi.object({
     .required(),
 });
 
-module.exports = { createDoctor, updateDoctor, setActive, setAvailability };
+const updateMyProfile = Joi.object({
+  bio: Joi.string().allow('').max(1000),
+  photoUrl: Joi.string().allow(''),
+  education: Joi.array().items(
+    Joi.object({
+      degree: Joi.string().required(),
+      institution: Joi.string().required(),
+      year: Joi.number().integer().min(1950).max(new Date().getFullYear()).allow(null),
+    })
+  ),
+  certifications: Joi.array().items(Joi.string()),
+  languages: Joi.array().items(Joi.string()),
+}).min(1);
+
+module.exports = { createDoctor, updateDoctor, setActive, setAvailability, updateMyProfile };

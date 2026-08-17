@@ -3,14 +3,14 @@ const { Schema } = require('mongoose');
 
  
 function tenantPlugin(schema, options = {}) {
-  const tenantIdRequired = options.tenantIdRequired !== false; // defaults to true
-
+  const tenantIdRequired = options.tenantIdRequired !== false; 
+  const indexed = options.indexed !== false; 
   schema.add({
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: 'Tenant',
       required: tenantIdRequired,
-      index: true,
+      index: indexed,
     },
   });
 

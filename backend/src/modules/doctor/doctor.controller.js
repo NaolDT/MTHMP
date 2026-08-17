@@ -32,4 +32,14 @@ const setAvailability = asyncHandler(async (req, res) => {
   success(res, 200, doctor);
 });
 
-module.exports = { create, list, getOne, update, setActive, setAvailability };
+const getMyProfile = asyncHandler(async (req, res) => {
+  const doctor = await doctorService.getMyProfile(req.tenantId, req.user.id);
+  success(res, 200, doctor);
+});
+
+const updateMyProfile = asyncHandler(async (req, res) => {
+  const doctor = await doctorService.updateMyProfile(req.tenantId, req.user.id, req.body);
+  success(res, 200, doctor);
+});
+
+module.exports = { create, list, getOne, update, setActive, setAvailability, getMyProfile, updateMyProfile };

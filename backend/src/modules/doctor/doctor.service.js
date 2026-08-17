@@ -165,4 +165,24 @@ async function setAvailability(tenantId, id, availability, requestingUser, req) 
   return doctor;
 }
 
-module.exports = { createDoctor, listDoctors, getDoctor, updateDoctor, setDoctorActive, setAvailability };
+/** A doctor viewing/editing their own professional profile — resolved by userId, not a route param. */
+async function getMyProfile(tenantId, userId) {
+  const doctor = await Doctor.findOne({ userId })
+    .setOptions({ tenantId })
+    .populate('userId', 'firstName lastName email phone')
+    .populate({ path: 'departmentId', select: 'name', options: { tenantId } });
+
+  if (!doctor) throw ApiError.notFound('Doctor profile not found for this account');
+  return doctor;
+}
+
+async function updateMyProfile(tenantId, userId, updates) {
+  const doctor = await Doctor.findOne({ userId }).setOptions({ tenantId });
+  if (!doctor) throw ApiError.notFound('Doctor profile not found for this account');
+
+  Object.assign(doctor, updates);
+  await doctor.save();
+  return doctor;
+}
+
+module.exports = { createDoctor, listDoctors, getDoctor, updateDoctor, setDoctorActive, setAvailability, getMyProfile, updateMyProfile };

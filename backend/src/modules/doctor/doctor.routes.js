@@ -10,6 +10,9 @@ const router = Router();
 
 router.use(authenticate);
 
+router.get('/me', authorize('doctor'), controller.getMyProfile);
+router.patch('/me', authorize('doctor'), validate(validation.updateMyProfile), controller.updateMyProfile);
+
 router.get('/', controller.list);
 router.get('/:id', controller.getOne);
 

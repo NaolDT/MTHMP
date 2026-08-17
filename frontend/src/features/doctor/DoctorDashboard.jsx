@@ -5,8 +5,10 @@ import { fetchAppointments, updateAppointmentStatus } from '../../api/appointmen
 import PageHeader from '../../shared/components/PageHeader';
 
 
-const navItems = [{ to: '/doctor', label: 'My Schedule' }];
-
+const navItems = [
+  { to: '/doctor', label: 'My Schedule' },
+  { to: '/doctor/profile', label: 'My Profile' },
+];
 const statusColors = {
   booked: 'bg-blue-100 text-blue-700',
   completed: 'bg-green-100 text-green-700',
