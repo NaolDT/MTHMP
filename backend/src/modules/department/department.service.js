@@ -73,4 +73,13 @@ async function setDepartmentActive(tenantId, id, isActive, req) {
   return department;
 }
 
-module.exports = { createDepartment, listDepartments, getDepartment, updateDepartment, setDepartmentActive };
+const Tenant = require('../tenant/tenant.model');
+
+async function listPublicDepartments(slug) {
+  const tenant = await Tenant.findOne({ slug, isActive: true });
+  if (!tenant) throw ApiError.notFound('Hospital not found');
+
+  return Department.find({ isActive: true }).setOptions({ tenantId: tenant._id }).select('name description services').sort({ name: 1 });
+}
+
+module.exports = { createDepartment, listDepartments, getDepartment, updateDepartment, setDepartmentActive, listPublicDepartments };

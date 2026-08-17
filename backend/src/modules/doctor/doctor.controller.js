@@ -42,4 +42,9 @@ const updateMyProfile = asyncHandler(async (req, res) => {
   success(res, 200, doctor);
 });
 
-module.exports = { create, list, getOne, update, setActive, setAvailability, getMyProfile, updateMyProfile };
+const listPublic = asyncHandler(async (req, res) => {
+  const doctors = await doctorService.listPublicDoctors(req.params.slug, req.query);
+  success(res, 200, doctors);
+});
+
+module.exports = { create, list, getOne, update, setActive, setAvailability, getMyProfile, updateMyProfile, listPublic };

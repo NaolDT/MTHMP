@@ -8,6 +8,8 @@ const authorize = require('../../shared/middlewares/authorize');
 
 const router = Router();
 
+router.get('/public/:slug', controller.listPublic);
+
 router.use(authenticate);
 
 router.get('/me', authorize('doctor'), controller.getMyProfile);
@@ -26,5 +28,7 @@ router.put(
   validate(validation.setAvailability),
   controller.setAvailability
 );
+
+
 
 module.exports = router;

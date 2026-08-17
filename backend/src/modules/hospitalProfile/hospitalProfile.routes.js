@@ -8,6 +8,8 @@ const authorize = require('../../shared/middlewares/authorize');
 
 const router = Router();
 
+router.get('/public/:slug', controller.getPublicProfile);
+
 router.use(authenticate);
 
 router.get('/', authorize('admin'), controller.getMyProfile);

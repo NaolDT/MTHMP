@@ -21,6 +21,7 @@ import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import HospitalProfilePage from '../features/hospitalProfile/HospitalProfilePage';
 import PendingReviewsPage from '../features/hospitalProfile/PendingReviewsPage';
 import MyProfilePage from '../features/doctor/MyProfilePage';
+import HospitalPage from '../features/hospitalExperience/HospitalPage';
 
 const receptionistNavItems = [
   { to: '/receptionist', label: 'Dashboard' },
@@ -163,6 +164,7 @@ export default function App() {
     </ProtectedRoute>
   }
 />
+<Route path="/hospitals/:slug" element={<HospitalPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

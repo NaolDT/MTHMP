@@ -116,4 +116,25 @@ async function rejectProfile(profileId, reason, req) {
   return profile;
 }
 
-module.exports = { getOrCreateProfile, updateProfile, submitForReview, listPendingProfiles, approveProfile, rejectProfile };
+const Tenant = require('../tenant/tenant.model');
+
+/** Public — no auth. Only ever returns a profile that's actually published, for an active hospital. */
+async function getPublishedProfileBySlug(slug) {
+  const tenant = await Tenant.findOne({ slug, isActive: true });
+  if (!tenant) throw ApiError.notFound('Hospital not found');
+
+  const profile = await HospitalProfile.findOne({ status: 'published' }).setOptions({ tenantId: tenant._id });
+  if (!profile) throw ApiError.notFound('This hospital has not published a public profile yet');
+
+  return { tenant: { name: tenant.name, slug: tenant.slug }, profile };
+}
+
+module.exports = {
+  getOrCreateProfile,
+  updateProfile,
+  submitForReview,
+  listPendingProfiles,
+  approveProfile,
+  rejectProfile,
+  getPublishedProfileBySlug,
+};

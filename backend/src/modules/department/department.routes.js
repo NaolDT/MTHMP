@@ -8,8 +8,9 @@ const authorize = require('../../shared/middlewares/authorize');
 
 const router = Router();
 
-router.use(authenticate);
+router.get('/public/:slug', controller.listPublic);
 
+router.use(authenticate);
 router.get('/', list_guard, controller.list);
 router.get('/:id', controller.getOne);
 

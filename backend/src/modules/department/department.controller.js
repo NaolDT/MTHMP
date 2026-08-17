@@ -27,4 +27,9 @@ const setActive = asyncHandler(async (req, res) => {
   success(res, 200, department);
 });
 
-module.exports = { create, list, getOne, update, setActive };
+const listPublic = asyncHandler(async (req, res) => {
+  const departments = await departmentService.listPublicDepartments(req.params.slug);
+  success(res, 200, departments);
+});
+
+module.exports = { create, list, getOne, update, setActive, listPublic };

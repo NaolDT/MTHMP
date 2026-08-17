@@ -185,4 +185,22 @@ async function updateMyProfile(tenantId, userId, updates) {
   return doctor;
 }
 
-module.exports = { createDoctor, listDoctors, getDoctor, updateDoctor, setDoctorActive, setAvailability, getMyProfile, updateMyProfile };
+const Tenant = require('../tenant/tenant.model');
+
+/** Public — no auth. Active doctors only, with only patient-facing fields exposed. */
+async function listPublicDoctors(slug, { departmentId } = {}) {
+  const tenant = await Tenant.findOne({ slug, isActive: true });
+  if (!tenant) throw ApiError.notFound('Hospital not found');
+
+  const filter = { isActive: true };
+  if (departmentId) filter.departmentId = departmentId;
+
+  return Doctor.find(filter)
+    .setOptions({ tenantId: tenant._id })
+    .select('specialization bio photoUrl education certifications languages experience departmentId userId')
+    .populate('userId', 'firstName lastName')
+    .populate({ path: 'departmentId', select: 'name', options: { tenantId: tenant._id } })
+    .sort({ createdAt: -1 });
+}
+
+module.exports = { createDoctor, listDoctors, getDoctor, updateDoctor, setDoctorActive, setAvailability, getMyProfile, updateMyProfile, listPublicDoctors };
