@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useMemo,useEffect } from 'react';
+import { useNavigate, Link,useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import PublicHeader from '../../shared/components/PublicHeader';
 import PublicFooter from '../../shared/components/PublicFooter';
@@ -27,7 +27,9 @@ const emptyForm = {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [searchParams] = useSearchParams();
+  const preselectedSlug = searchParams.get('hospital');
+  const [step, setStep] = useState(preselectedSlug ? 2 : 1);
   const [search, setSearch] = useState('');
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [submitError, setSubmitError] = useState('');
@@ -50,6 +52,18 @@ export default function RegisterPage() {
     if (!q) return tenants;
     return tenants.filter((t) => t.name.toLowerCase().includes(q));
   }, [tenants, search]);
+
+useEffect(() => {
+  if (preselectedSlug && tenants && !selectedTenant) {
+    const match = tenants.find((t) => t.slug === preselectedSlug);
+    if (match) {
+      setSelectedTenant(match);
+      setStep(2);
+    } else {
+      setStep(1); 
+    }
+  }
+}, [preselectedSlug, tenants]);
 
   function selectTenant(tenant) {
     setSelectedTenant(tenant);
@@ -113,15 +127,27 @@ export default function RegisterPage() {
                 ) : filteredTenants.length === 0 ? (
                   <p className="text-sm text-slate-400 text-center py-4">No hospitals found.</p>
                 ) : (
-                  filteredTenants.map((tenant) => (
-                    <button
-                      key={tenant._id}
-                      onClick={() => selectTenant(tenant)}
-                      className="w-full text-left rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:border-brand hover:bg-blue-50 transition-colors"
-                    >
-                      {tenant.name}
-                    </button>
-                  ))
+                filteredTenants.map((tenant) => (
+  <div
+    key={tenant._id}
+    className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3 hover:border-brand hover:bg-blue-50 transition-colors"
+  >
+    <button
+      onClick={() => selectTenant(tenant)}
+      className="flex-1 text-left text-sm font-medium text-slate-700"
+    >
+      {tenant.name}
+    </button>
+    <Link
+      to={`/hospitals/${tenant.slug}`}
+      target="_blank"
+      onClick={(e) => e.stopPropagation()}
+      className="text-xs text-brand hover:underline shrink-0 ml-3"
+    >
+      View page
+    </Link>
+  </div>
+))
                 )}
               </div>
             </div>

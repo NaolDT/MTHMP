@@ -22,6 +22,7 @@ import HospitalProfilePage from '../features/hospitalProfile/HospitalProfilePage
 import PendingReviewsPage from '../features/hospitalProfile/PendingReviewsPage';
 import MyProfilePage from '../features/doctor/MyProfilePage';
 import HospitalPage from '../features/hospitalExperience/HospitalPage';
+import PatientHomePage from '../features/hospitalExperience/PatientHomePage';
 
 const receptionistNavItems = [
   { to: '/receptionist', label: 'Dashboard' },
@@ -165,6 +166,14 @@ export default function App() {
   }
 />
 <Route path="/hospitals/:slug" element={<HospitalPage />} />
+<Route
+  path="/patient/home"
+  element={
+    <ProtectedRoute allowedRoles={['patient']}>
+      <PatientHomePage />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

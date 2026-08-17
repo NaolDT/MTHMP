@@ -36,4 +36,9 @@ const getPublicProfile = asyncHandler(async (req, res) => {
   success(res, 200, data);
 });
 
-module.exports = { getMyProfile, updateMyProfile, submitForReview, listPending, approve, reject, getPublicProfile };
+const getForViewing = asyncHandler(async (req, res) => {
+  const data = await hospitalProfileService.getMyTenantHospitalData(req.tenantId);
+  success(res, 200, data);
+});
+
+module.exports = { getMyProfile, updateMyProfile, submitForReview, listPending, approve, reject, getPublicProfile, getForViewing };

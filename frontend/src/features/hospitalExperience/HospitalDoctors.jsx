@@ -1,7 +1,28 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 export default function HospitalDoctors({ doctors, tenantSlug }) {
+  const { user } = useAuth();
+
   if (doctors.length === 0) return null;
+
+  function renderBookingLink() {
+    if (!user) {
+      return (
+        <Link to={`/register?hospital=${tenantSlug}`} className="mt-3 inline-block text-xs font-medium text-brand hover:underline">
+          Book an appointment →
+        </Link>
+      );
+    }
+    if (user.role === 'patient') {
+      return (
+        <Link to="/patient/book" className="mt-3 inline-block text-xs font-medium text-brand hover:underline">
+          Book an appointment →
+        </Link>
+      );
+    }
+    return <p className="mt-3 text-xs text-slate-400">Log in as a patient to book</p>;
+  }
 
   return (
     <section className="bg-slate-50 py-10 sm:py-14">
@@ -31,12 +52,7 @@ export default function HospitalDoctors({ doctors, tenantSlug }) {
               {doc.languages?.length > 0 && (
                 <p className="mt-2 text-[11px] text-slate-400">Speaks: {doc.languages.join(', ')}</p>
               )}
-              <Link
-                to={`/register?hospital=${tenantSlug}`}
-                className="mt-3 inline-block text-xs font-medium text-brand hover:underline"
-              >
-                Book an appointment →
-              </Link>
+              {renderBookingLink()}
             </div>
           ))}
         </div>

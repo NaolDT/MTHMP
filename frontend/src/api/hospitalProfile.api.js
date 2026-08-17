@@ -28,3 +28,8 @@ export async function rejectHospitalProfile(id, reason) {
   const { data } = await apiClient.patch(`/hospital-profile/${id}/reject`, { reason });
   return data.data;
 }
+
+export async function fetchMyTenantHospitalData() {
+  const { data } = await apiClient.get('/hospital-profile/mine');
+  return data.data;
+}

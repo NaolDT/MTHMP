@@ -6,6 +6,7 @@ import PageHeader from '../../shared/components/PageHeader';
 
 
 const navItems = [
+  { to: '/patient/home', label: 'Home' },
   { to: '/patient', label: 'My Appointments' },
   { to: '/patient/book', label: 'Book Appointment' },
 ];

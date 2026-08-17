@@ -12,6 +12,8 @@ router.get('/public/:slug', controller.getPublicProfile);
 
 router.use(authenticate);
 
+router.get('/mine', controller.getForViewing);
+
 router.get('/', authorize('admin'), controller.getMyProfile);
 router.patch('/', authorize('admin'), validate(validation.updateProfile), controller.updateMyProfile);
 router.post('/submit', authorize('admin'), controller.submitForReview);

@@ -12,6 +12,7 @@ import HospitalFacilities from './HospitalFacilities';
 import HospitalGallery from './HospitalGallery';
 import HospitalWorkingHours from './HospitalWorkingHours';
 import HospitalContact from './HospitalContact';
+import { useAuth } from '../auth/AuthContext';
 
 export default function HospitalPage() {
   const { slug } = useParams();
@@ -33,6 +34,7 @@ export default function HospitalPage() {
     queryFn: () => fetchPublicDoctors(slug),
     enabled: !!data,
   });
+  const { user } = useAuth();
 
   if (isLoading) {
     return (
@@ -83,13 +85,22 @@ export default function HospitalPage() {
       <HospitalContact contactAddress={profile.contactAddress} />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-14 text-center">
-        <Link
-          to={`/register?hospital=${tenant.slug}`}
-          className="inline-block rounded-lg bg-brand text-white px-6 py-3 font-medium hover:bg-blue-700 transition-colors"
-        >
-          Register as a Patient at {tenant.name}
-        </Link>
-      </div>
+  {!user ? (
+    <Link
+      to={`/register?hospital=${tenant.slug}`}
+      className="inline-block rounded-lg bg-brand text-white px-6 py-3 font-medium hover:bg-blue-700 transition-colors"
+    >
+      Register as a Patient at {tenant.name}
+    </Link>
+  ) : user.role === 'patient' ? (
+    <Link
+      to="/patient/book"
+      className="inline-block rounded-lg bg-brand text-white px-6 py-3 font-medium hover:bg-blue-700 transition-colors"
+    >
+      Book an Appointment
+    </Link>
+  ) : null}
+</div>
 
       <PublicFooter />
     </div>

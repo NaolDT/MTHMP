@@ -118,7 +118,6 @@ async function rejectProfile(profileId, reason, req) {
 
 const Tenant = require('../tenant/tenant.model');
 
-/** Public — no auth. Only ever returns a profile that's actually published, for an active hospital. */
 async function getPublishedProfileBySlug(slug) {
   const tenant = await Tenant.findOne({ slug, isActive: true });
   if (!tenant) throw ApiError.notFound('Hospital not found');
@@ -129,6 +128,16 @@ async function getPublishedProfileBySlug(slug) {
   return { tenant: { name: tenant.name, slug: tenant.slug }, profile };
 }
 
+
+
+async function getMyTenantHospitalData(tenantId) {
+  const [tenant, profile] = await Promise.all([
+    Tenant.findById(tenantId).select('name slug'),
+    getOrCreateProfile(tenantId),
+  ]);
+  return { tenant, profile };
+}
+
 module.exports = {
   getOrCreateProfile,
   updateProfile,
@@ -137,4 +146,5 @@ module.exports = {
   approveProfile,
   rejectProfile,
   getPublishedProfileBySlug,
+  getMyTenantHospitalData,
 };
