@@ -38,15 +38,15 @@ const adminPatientAppointmentNavItems = [
   { to: '/admin/patients', label: 'Patients' },
   { to: '/admin/appointments', label: 'Appointments' },
 ];
-// function PlaceholderDashboard({ label }) {
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-//       <p className="text-lg sm:text-xl text-brand-dark text-center">
-//         Logged in as <strong>{label}</strong> — dashboard coming in a later phase.
-//       </p>
-//     </div>
-//   );
-// }
+function PlaceholderDashboard({ label }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <p className="text-lg sm:text-xl text-brand-dark text-center">
+        Logged in as <strong>{label}</strong> — dashboard coming in a later phase.
+      </p>
+    </div>
+  );
+}
 
 export default function App() {
   return (
