@@ -27,15 +27,16 @@ const statusMeta = {
   published: { label: 'Published', color: 'bg-green-100 text-green-700' },
 };
 
-/** One hook per section: local state seeded from the profile, its own save mutation, its own feedback. */
 function useSectionForm(profile, fields, queryClient) {
   const [values, setValues] = useState(() => Object.fromEntries(fields.map((f) => [f, profile?.[f] ?? ''])));
+  const [loadedProfileId, setLoadedProfileId] = useState(profile?._id);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    if (profile) setValues(Object.fromEntries(fields.map((f) => [f, profile[f] ?? ''])));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?._id]);
+  
+  if (profile && profile._id !== loadedProfileId) {
+    setLoadedProfileId(profile._id);
+    setValues(Object.fromEntries(fields.map((f) => [f, profile[f] ?? ''])));
+  }
 
   const mutation = useMutation({
     mutationFn: updateHospitalProfile,
@@ -77,16 +78,17 @@ export default function HospitalProfilePage() {
   const [facilities, setFacilities] = useState([]);
   const [workingHours, setWorkingHours] = useState([]);
 
-  useEffect(() => {
-    if (profile) {
-      setFacilities(profile.facilities || []);
-      setWorkingHours(
-        profile.workingHours?.length
-          ? profile.workingHours
-          : DAYS.map((day) => ({ day, openTime: '09:00', closeTime: '17:00', isOpen: true }))
-      );
-    }
-  }, [profile?._id]);
+  const [loadedFacilitiesId, setLoadedFacilitiesId] = useState(null);
+
+if (profile && profile._id !== loadedFacilitiesId) {
+  setLoadedFacilitiesId(profile._id);
+  setFacilities(profile.facilities || []);
+  setWorkingHours(
+    profile.workingHours?.length
+      ? profile.workingHours
+      : DAYS.map((day) => ({ day, openTime: '09:00', closeTime: '17:00', isOpen: true }))
+  );
+}
 
   const facilitiesMutation = useMutation({
     mutationFn: updateHospitalProfile,
