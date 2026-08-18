@@ -55,8 +55,9 @@ const HospitalProfileSchema = new Schema(
   { timestamps: true }
 );
 
-HospitalProfileSchema.plugin(tenantPlugin);
-HospitalProfileSchema.index({ tenantId: 1 }, { unique: true }); // strict 1:1 with Tenant
+
+HospitalProfileSchema.plugin(tenantPlugin, { indexed: false });
+HospitalProfileSchema.index({ tenantId: 1 }, { unique: true });
 HospitalProfileSchema.index({ status: 1 });
 
 module.exports = model('HospitalProfile', HospitalProfileSchema);
